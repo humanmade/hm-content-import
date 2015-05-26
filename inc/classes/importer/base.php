@@ -11,6 +11,7 @@ abstract class Base {
 
 		$this->args = wp_parse_args( $args, array(
 			'items_per_loop'    => 100,
+			'debug'             => false,
 		) );
 
 		$verified = $this->verify_args();
@@ -40,7 +41,16 @@ abstract class Base {
 	public function import_item( $item ) {
 
 		$item   = $this->parse_item( $item );
+
+		if ( ! $item ) {
+			return false;
+		}
+
 		$id     = $this->insert_item( $item );
+
+		if ( is_wp_error( $id ) ) {
+			$this->debug( $id );
+		}
 
 		return $id;
 	}
@@ -67,6 +77,10 @@ abstract class Base {
 	}
 
 	protected function debug( $output ) {
+
+		if ( empty( $this->args['debug'] ) ) {
+			return;
+		}
 
 		if ( ! $this->debugger ) {
 			$this->debug_default( $output );

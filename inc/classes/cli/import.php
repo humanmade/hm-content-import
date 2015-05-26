@@ -45,8 +45,15 @@ class Import extends \WP_CLI_Command {
 	public static function debug( $output, $exit_on_output = false ) {
 
 		if ( is_wp_error( $output ) ) {
+
 			$output = $output->get_error_message();
+
+		} elseif ( $output instanceof \Exception ) {
+
+			$output = $output->getMessage();
+
 		} else if ( ! is_string( $output ) ) {
+
 			$output = var_export( $output, true );
 		}
 
