@@ -36,7 +36,21 @@ class User extends Base {
 
 		global $wpdb;
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
+		return $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
+	}
+
+	static function get_id_from_email( $email ) {
+
+		global $wpdb;
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_email = %s", $email ) );
+	}
+
+	static function get_id_from_login( $login ) {
+
+		global $wpdb;
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s", $login ) );
 	}
 
 	static function set_canonical_id( $id, $canonical_id ) {
