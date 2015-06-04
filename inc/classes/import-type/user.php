@@ -6,8 +6,8 @@ class User extends Base {
 
 	static function insert( $user_data, $canonical_id = false ) {
 
-		if ( $canonical_id && static::exists( $canonical_id ) ) {
-			$user_data['ID'] = $canonical_id;
+		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+			$user_data['ID'] = $current_id;
 		}
 
 		$user_id = wp_insert_user( $user_data, true );

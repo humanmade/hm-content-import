@@ -4,9 +4,11 @@ namespace HMCI\Importer;
 
 abstract class Files extends Base {
 
+	use File_Trait;
+
 	public function get_items( $offset, $count ) {
 
-		$files       = $this->get_files_in_path();
+		$files       = $this->filter_files( $this->get_files_in_path() );
 
 		if ( is_wp_error( $files ) ) {
 			return $files;

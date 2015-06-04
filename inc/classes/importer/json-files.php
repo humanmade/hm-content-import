@@ -16,9 +16,7 @@ abstract class JSON_Files extends Files {
 	protected function filter_files( $files ) {
 
 		return array_filter( $files, function( $file_path ) {
-
 			return ( strtoupper( substr( $file_path, -5 ) ) === '.JSON' );
-
 		} );
 	}
 }

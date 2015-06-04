@@ -11,13 +11,13 @@ abstract class Base {
 
 		$this->args = wp_parse_args( $args, array(
 			'items_per_loop'    => 100,
-			'debug'             => false,
+			'verbose'           => true,
 		) );
 
 		$verified = $this->verify_args();
 
 		if ( ! $verified || is_wp_error( $verified ) ) {
-			throw new \Exception( ( ! $verified ) ? __( 'Invalid arguments supplied', 'hmci' ) : $verified->get_message() );
+			throw new \Exception( ( ! $verified ) ? __( 'Invalid arguments supplied', 'hmci' ) : $verified->get_error_message() );
 		}
 	}
 
@@ -60,8 +60,14 @@ abstract class Base {
 		$offset = 0;
 
 		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
+
+			var_dump( $items );
 			$offset += count( $items );
 		}
+
+		var_dump( $offset );
+
+		exit;
 
 		return $offset;
 	}
@@ -78,53 +84,13 @@ abstract class Base {
 
 	protected function debug( $output ) {
 
-		if ( empty( $this->args['debug'] ) ) {
+		if ( empty( $this->args['verbose'] ) ) {
 			return;
 		}
 
-		if ( ! $this->debugger ) {
-			$this->debug_default( $output );
-		} else {
+		if ( $this->debugger ) {
 			call_user_func( $this->debugger, $output );
 		}
-	}
-
-	protected function debug_default( $output ) {
-
-		var_dump( $output );
-	}
-
-	protected function get_files_in_path() {
-
-		$path        = $this->args['export-path'];
-		$check_paths = array( $path, ABSPATH . '/' . $path, ABSPATH . '../' . $path );
-		$path_found  = '';
-
-		foreach ( $check_paths as $path ) {
-
-			if ( file_exists( $path ) ) {
-				$path_found = $path;
-			}
-		}
-
-		if ( ! $path_found ) {
-			return new \WP_Error( 404, __( 'Path not found', 'hmci' ) );
-		}
-
-		if ( is_dir( $path ) ) {
-
-			$files = array_map( function( $item ) use ( $path ) {
-
-				return $path . '/' . $item;
-
-			}, scandir( $path ) );
-
-		} else {
-
-			$files = array( $path );
-		}
-
-		return $this->filter_files( $files );
 	}
 
 	abstract protected function insert_item( $item );

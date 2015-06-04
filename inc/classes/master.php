@@ -32,13 +32,26 @@ class Master {
 
 	/**
 	 * @param $key
-	 * @return bool | Importer\Base
+	 * @return bool | WP_Error | Importer\Base
 	 */
 	public static function get_importer_instance( $key, $args = array() ) {
 
 		$importers = static::get_importers();
 
-		return ! empty( $importers[ $key ] ) ? new $importers[ $key ]( $args ) : false;
+		if ( ! $importers[ $key ] ) {
+			return false;
+		}
+
+		try {
+
+			$importer = new $importers[ $key ]( $args );
+
+		} catch ( \Exception $e ) {
+
+			return new \WP_Error( 500, $e->getMessage() );
+		}
+
+		return $importer;
 	}
 
 	protected static function init_cli() {

@@ -14,8 +14,8 @@ class Post extends Base {
 			$post_type = $post_data['post_type'];
 		}
 
-		if ( $canonical_id && static::exists( $post_type, $canonical_id ) ) {
-			$post_data['ID'] = $canonical_id;
+        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+			$post_data['ID'] = $current_id;
 		}
 
 		$post_id = wp_insert_post( $post_data, true );
@@ -45,7 +45,7 @@ class Post extends Base {
 		return (bool) static::get_id_from_canonical_id( $canonical_id, $post_type );
 	}
 
-	static function get_id_from_canonical_id( $canonical_id, $post_type = '' ) {
+	static function get_id_from_canonical_id( $canonical_id, $post_type = 'post' ) {
 
 		global $wpdb;
 

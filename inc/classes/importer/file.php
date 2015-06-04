@@ -4,6 +4,8 @@ namespace HMCI\Importer;
 
 abstract class File extends Base {
 
+	use File_Trait;
+
 	public function get_items( $offset, $count ) {
 
 		$files = $this->get_files_in_path();

@@ -9,8 +9,13 @@ class Attachment extends Post {
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
 
-		if ( $canonical_id && static::exists( $canonical_id ) ) {
-			$post_data['ID'] = $canonical_id;
+        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+
+			$post_data['ID'] = $current_id;
+
+			$post_id = wp_insert_post( $post_data, true );
+
+			return $post_id;
 		}
 
 		static::require_dependencies();
@@ -24,7 +29,7 @@ class Attachment extends Post {
 		// do the validation and storage stuff
 		$post_id = media_handle_sideload( $file_array, $post_parent, "", $post_data );
 
-		// If error storing permanently, unlink if a tmp file was stored
+		// If remote file, clean up temp file
 		if ( $is_url ) {
 			static::cleanup_file( $file_array );
 		}
@@ -70,7 +75,12 @@ class Attachment extends Post {
 		// Set variables for storage
 		// Fix file filename for query strings
 		preg_match( '/[^\?]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i', $path, $matches );
-		$file_array['name']     = basename( $matches[0] );
+
+        if ( empty( $matches ) ) {
+            $file_array['name']  = end( ( explode( '/', $path ) ) ) . '.png';
+        } else {
+            $file_array['name'] = $matches[0];
+        }
 
 		return $file_array;
 	}
