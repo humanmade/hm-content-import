@@ -14,7 +14,7 @@ abstract class Post_Content extends Base {
 
 		$post_content = $this->parse_post_content( $item->post_content, $item );
 
-		wp_insert_post( array(
+		wp_update_post( array(
 			'ID'            => $item->ID,
 			'post_content'  => $post_content,
 		) );

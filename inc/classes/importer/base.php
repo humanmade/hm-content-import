@@ -34,7 +34,12 @@ abstract class Base {
 	public function import_items( $items ) {
 
 		foreach ( $items as $item ) {
-			$this->import_item( $item );
+
+			$r = $this->import_item( $item );
+
+			if ( is_wp_error( $r ) ) {
+				$this->debug( $r );
+			}
 		}
 	}
 

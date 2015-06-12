@@ -27,7 +27,11 @@ class User extends Base {
 
 		foreach ( $meta_data as $meta_key => $meta_value ) {
 
-			update_user_meta( $user_id, $meta_key, $meta_value );
+			if ( is_null( $meta_value ) ) {
+				delete_post_meta( $user_id, $meta_key  );
+			} else {
+				update_user_meta( $user_id, $meta_key, $meta_value );
+			}
 		}
 
 	}

@@ -13,6 +13,7 @@ require_once( __DIR__ . '/inc/classes/import-type/interface.php' );
 require_once( __DIR__ . '/inc/classes/import-type/base.php' );
 require_once( __DIR__ . '/inc/classes/import-type/post.php' );
 require_once( __DIR__ . '/inc/classes/import-type/user.php' );
+require_once( __DIR__ . '/inc/classes/import-type/guest-author.php' );
 require_once( __DIR__ . '/inc/classes/import-type/attachment.php' );
 
 require_once( __DIR__ . '/inc/classes/master.php' );

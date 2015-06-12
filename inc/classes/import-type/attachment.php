@@ -13,7 +13,9 @@ class Attachment extends Post {
 
 			$post_data['ID'] = $current_id;
 
-			$post_id = wp_insert_post( $post_data, true );
+			$post_id = wp_update_post( $post_data, true );
+
+	        static::set_import_path_meta( $post_id, $path );
 
 			return $post_id;
 		}
@@ -41,6 +43,8 @@ class Attachment extends Post {
 		if ( $canonical_id ) {
 			static::set_canonical_id( $post_id, $canonical_id );
 		}
+
+		static::set_import_path_meta( $post_id, $path );
 
 		return $post_id;
 	}
@@ -103,5 +107,10 @@ class Attachment extends Post {
 	static function set_canonical_id( $id, $canonical_id, $post_type = 'post' ) {
 
 		parent::set_canonical_id( $id, $canonical_id, 'attachment' );
+	}
+
+	static function set_import_path_meta( $id, $import_path ) {
+
+		update_post_meta( $id, 'hmci_import_path', $import_path );
 	}
 }
