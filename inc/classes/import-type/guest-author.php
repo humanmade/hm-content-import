@@ -32,4 +32,80 @@ class Guest_Author extends Post {
 
 		return $post_id;
 	}
+
+	static function get_id_by( $field, $value ) {
+
+		$user = static::get_object_by( $field, $value );
+
+		return ! empty( $user['ID'] ) ? absint( $user['ID'] ) : false;
+	}
+
+	static function get_object_by( $user_field, $user_value ) {
+
+		global $coauthors_plus;
+
+			$user = $coauthors_plus->get_coauthor_by( $user_field, $user_value );
+
+		return $user;
+	}
+
+	static function set_authors_for_post( $user_field, $user_values, $post_id ) {
+
+		if ( ! is_array ( $user_values ) ) {
+			$user_values = array( $user_values );
+		}
+
+		$logins = array();
+
+		foreach ( $user_values as $user_value ) {
+
+			$user = static::get_object_by( $user_field, $user_value );
+
+			if ( ! empty( $user->user_login ) ) {
+				$logins[] = $user->user_login;
+			}
+		}
+
+		global $coauthors_plus, $wpdb;
+
+		// Set the coauthors
+		$coauthors = array_unique( $logins );
+
+		$coauthor_objects = array();
+
+		foreach ( $coauthors as &$author_name ){
+
+			$author = $coauthors_plus->get_coauthor_by( 'user_login', $author_name );
+			$coauthor_objects[] = $author;
+			$term = $coauthors_plus->update_author_term( $author );
+			$author_name = $term->slug;
+		}
+
+		wp_set_post_terms( $post_id, $coauthors, $coauthors_plus->coauthor_taxonomy, false );
+
+		// If the original post_author is no longer assigned,
+		// update to the first WP_User $coauthor
+		$post_author_user = get_user_by( 'id', get_post( $post_id )->post_author );
+
+		if ( empty( $post_author_user )  || ! in_array( $post_author_user->user_login, $coauthors ) ) {
+
+			foreach ( $coauthor_objects as $coauthor_object ) {
+				if ( 'wpuser' == $coauthor_object->type ) {
+					$new_author = $coauthor_object;
+					break;
+				}
+			}
+
+			// Uh oh, no WP_Users assigned to the post
+			if ( empty( $new_author ) ) {
+				return false;
+			}
+
+			$wpdb->update( $wpdb->posts, array( 'post_author' => $new_author->ID ), array( 'ID' => $post_id ) );
+			clean_post_cache( $post_id );
+		}
+
+		return true;
+	}
+
 }

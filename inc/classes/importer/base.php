@@ -66,13 +66,8 @@ abstract class Base {
 
 		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
 
-			var_dump( $items );
 			$offset += count( $items );
 		}
-
-		var_dump( $offset );
-
-		exit;
 
 		return $offset;
 	}

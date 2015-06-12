@@ -30,7 +30,7 @@ class Import extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		$progress = new \cli\progress\Bar( __( 'Importing data', 'hmci' ), $count, 100 );
+		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %s', 'hmci' ), $import_type ), $count, 100 );
 
 		$progress->display();
 

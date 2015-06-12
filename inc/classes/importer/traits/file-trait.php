@@ -21,17 +21,17 @@ trait File_Trait {
 			return new \WP_Error( 404, __( 'Path not found', 'hmci' ) );
 		}
 
-		if ( is_dir( $path ) ) {
+		if ( is_dir( $path_found ) ) {
 
-			$files = array_map( function( $item ) use ( $path ) {
+			$files = array_map( function( $item ) use ( $path_found ) {
 
-				return $path . '/' . $item;
+				return $path_found . '/' . $item;
 
-			}, scandir( $path ) );
+			}, scandir( $path_found ) );
 
 		} else {
 
-			$files = array( $path );
+			$files = array( $path_found );
 		}
 
 		return $files;
