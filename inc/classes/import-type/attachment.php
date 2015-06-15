@@ -63,7 +63,7 @@ class Attachment extends Post {
 		//Path is a URL
 		if ( $is_url ) {
 
-			$file_array['tmp_name'] = \download_url( $path );
+			$file_array['tmp_name'] = static::download_url( $path );
 
 			// If error storing temporarily, unlink
 			if ( is_wp_error( $file_array['tmp_name'] ) ) {
@@ -79,6 +79,8 @@ class Attachment extends Post {
 		// Set variables for storage
 		// Fix file filename for query strings
 		preg_match( '/[^\?]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i', $path, $matches );
+
+		var_dump( $file_array );
 
         if ( empty( $matches ) ) {
             $file_array['name']  = end( ( explode( '/', $path ) ) ) . '.png';
@@ -113,4 +115,57 @@ class Attachment extends Post {
 
 		update_post_meta( $id, 'hmci_import_path', $import_path );
 	}
+
+	static function download_url( $url, $timeout = 300 ) {
+
+		//WARNING: The file is not automatically deleted, The script must unlink() the file.
+		if ( ! $url )
+			return new \WP_Error('http_no_url', __('Invalid URL Provided.'));
+
+		/*
+		 * Override default functionality from wp download_url function
+		 */
+
+		// Set variables for storage
+		// Fix file filename for query strings
+		$found_extension = strpos( $url, '/' ) !== false && strpos( end( ( explode( '/', $url ) ) ), '.' ) !== false;
+
+		// wp_tempnam expects an extension to replace but in some cases download urls won't include an extension - it doesn't matter what extension we use
+		if ( ! $found_extension ) {
+			$tmpfname = wp_tempnam( $url . '.png' );
+		} else {
+			$tmpfname = wp_tempnam( $url );
+		}
+
+		/*
+		 * End override default
+		 */
+
+		if ( ! $tmpfname )
+			return new \WP_Error('http_no_file', __('Could not create Temporary file.'));
+
+		$response = wp_safe_remote_get( $url, array( 'timeout' => $timeout, 'stream' => true, 'filename' => $tmpfname ) );
+
+		if ( is_wp_error( $response ) ) {
+			unlink( $tmpfname );
+			return $response;
+		}
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ){
+			unlink( $tmpfname );
+			return new \WP_Error( 'http_404', trim( wp_remote_retrieve_response_message( $response ) ) );
+		}
+
+		$content_md5 = wp_remote_retrieve_header( $response, 'content-md5' );
+		if ( $content_md5 ) {
+			$md5_check = verify_file_md5( $tmpfname, $content_md5 );
+			if ( is_wp_error( $md5_check ) ) {
+				unlink( $tmpfname );
+				return $md5_check;
+			}
+		}
+
+		return $tmpfname;
+	}
+
 }
