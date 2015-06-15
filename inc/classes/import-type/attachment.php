@@ -80,8 +80,6 @@ class Attachment extends Post {
 		// Fix file filename for query strings
 		preg_match( '/[^\?]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i', $path, $matches );
 
-		var_dump( $file_array );
-
         if ( empty( $matches ) ) {
             $file_array['name']  = end( ( explode( '/', $path ) ) ) . '.png';
         } else {
