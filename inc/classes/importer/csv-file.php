@@ -40,7 +40,7 @@ abstract class CSV_File extends File {
 
 		if ( ( $handle = fopen( $file, 'r' ) ) !== false ) {
 
-			while ( ( $row = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
+			while ( ( $row = fgetcsv( $handle, 4096, ',', '"' ) ) !== false ) {
 
 				if ( ! $header ) {
 					$header = $row;
