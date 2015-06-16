@@ -14,7 +14,7 @@ class Post extends Base {
 			$post_type = $post_data['post_type'];
 		}
 
-        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, $post_type ) ) {
 			$post_data['ID'] = $current_id;
 		}
 
@@ -25,7 +25,7 @@ class Post extends Base {
 		}
 
 		if ( $canonical_id ) {
-			static::set_canonical_id( $post_id, $canonical_id );
+			static::set_canonical_id( $post_id, $canonical_id, $post_type );
 		}
 
 		return $post_id;
