@@ -24,15 +24,16 @@ class Import extends \WP_CLI_Command {
 		$offset      = absint( $args_assoc['offset'] );
 		$total       = $count + $offset;
 
+		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %s (%d items)', 'hmci' ), $import_type, $count ), $count, 100 );
+
+		$progress->display();
+
 		if ( $args_assoc['resume'] ) {
 			$current_offset = $this->get_progress( $import_type );
+			$progress->tick( $current_offset );
 		} else {
 			$current_offset = 0;
 		}
-
-		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %s', 'hmci' ), $import_type ), $count, 100 );
-
-		$progress->display();
 
 		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
 

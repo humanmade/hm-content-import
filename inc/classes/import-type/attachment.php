@@ -63,7 +63,11 @@ class Attachment extends Post {
 		//Path is a URL
 		if ( $is_url ) {
 
-			$file_array['tmp_name'] = static::download_url( $path );
+			try {
+				$file_array['tmp_name'] = static::download_url( $path );
+			} catch ( \Exception $e ) {
+				$file_array['tmp_name'] = new \WP_Error( 500, $e->getMessage() );
+			}
 
 			// If error storing temporarily, unlink
 			if ( is_wp_error( $file_array['tmp_name'] ) ) {
@@ -71,7 +75,7 @@ class Attachment extends Post {
 				return $file_array['tmp_name'];
 			}
 
-			//Path is a file path
+		//Path is a file path
 		} else {
 			$file_array['tmp_name'] = $path;
 		}
@@ -104,7 +108,7 @@ class Attachment extends Post {
 		return parent::get_id_from_canonical_id( $canonical_id, 'attachment' );
 	}
 
-	static function set_canonical_id( $id, $canonical_id, $post_type = 'post' ) {
+	static function set_canonical_id( $id, $canonical_id ) {
 
 		parent::set_canonical_id( $id, $canonical_id, 'attachment' );
 	}
