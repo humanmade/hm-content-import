@@ -42,6 +42,8 @@ class Import extends \WP_CLI_Command {
             $progress->tick( count( $items ) );
 
 			$this->save_progress( $import_type, $current_offset );
+
+
 		}
 
 		$this->clear_progress( $import_type );
@@ -72,6 +74,8 @@ class Import extends \WP_CLI_Command {
 			}
 
 			$current_offset += count( $items );
+
+			$this->clear_local_object_cache();
 		}
 
 	}
@@ -132,4 +136,13 @@ class Import extends \WP_CLI_Command {
 		return absint( get_option( 'hmci_import_pg_' . md5( $import_type ), 0 ) );
 	}
 
+	protected function clear_local_object_cache() {
+
+		// Mitigate memory leak issues
+		global $wp_object_cache;
+
+		if ( ! empty( $wp_object_cache->cache ) ) {
+			$wp_object_cache->cache = array();
+		}
+	}
 }
