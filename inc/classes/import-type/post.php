@@ -18,7 +18,11 @@ class Post extends Base {
 			$post_data['ID'] = $current_id;
 		}
 
-		$post_id = wp_insert_post( $post_data, true );
+		if ( ! empty( $post_data['ID'] ) ) {
+			$post_id = wp_update_post( $post_data, true );
+		} else {
+			$post_id = wp_insert_post( $post_data, true );
+		}
 
 		if ( is_wp_error( $post_id ) ) {
 			return $post_id;

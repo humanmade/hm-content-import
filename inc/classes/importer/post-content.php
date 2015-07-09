@@ -22,14 +22,27 @@ abstract class Post_Content extends Base {
 
 	public function get_items( $offset, $count ) {
 
-		$query = new \WP_Query( array(
-			'post_type'      => 'any',
-			'post_status'    => 'any',
+		$query = $this->get_post_query( array(
 			'posts_per_page' => $count,
-			'offset'         => $offset
+			'offset'         => $offset,
 		) );
 
 		return $query->get_posts();
+	}
+
+	protected function get_post_query( $args ) {
+
+		$query = new \WP_Query( wp_parse_args( $args, $this->get_query_args() ) );
+
+		return $query;
+	}
+
+	protected function get_query_args( ) {
+
+		return array(
+			'post_type'      => 'any',
+			'post_status'    => 'any',
+		);
 	}
 
 	abstract protected function parse_post_content( $post_content, $post );
