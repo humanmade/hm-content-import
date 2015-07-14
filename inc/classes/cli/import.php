@@ -42,8 +42,6 @@ class Import extends \WP_CLI_Command {
             $progress->tick( count( $items ) );
 
 			$this->save_progress( $import_type, $current_offset );
-
-
 		}
 
 		$this->clear_progress( $import_type );
