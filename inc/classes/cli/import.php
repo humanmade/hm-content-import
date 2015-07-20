@@ -9,12 +9,14 @@ class Import extends \WP_CLI_Command {
 	public function import( $args, $args_assoc ) {
 
 		$args_assoc = wp_parse_args( $args_assoc, array(
-			'count'       => 0,
-			'offset'      => 0,
-			'resume'      => false,
-			'verbose'     => false,
-			'dry-run'     => false,
-			'export-path' => ''
+			'count'                => 0,
+			'offset'               => 0,
+			'resume'               => false,
+			'verbose'              => false,
+			'dry-run'              => false,
+			'export-path'          => '',
+			'disable-global-terms' => true,
+			'disable-trackbacks'   => true,
 		) );
 
 		$import_type = $args[0];
@@ -142,5 +144,43 @@ class Import extends \WP_CLI_Command {
 		if ( ! empty( $wp_object_cache->cache ) ) {
 			$wp_object_cache->cache = array();
 		}
+	}
+
+	protected function manage_disables( $args ) {
+
+		if ( ! empty( $args['disable-global-terms'] ) ) {
+			$this->disable_global_terms();
+		}
+
+		if ( ! empty( $args['disable-trackbacks'] ) ) {
+			$this->disable_trackbacks();
+		}
+	}
+
+	protected function disable_global_terms() {
+
+		if ( ! empty( $this->global_terms_disabled ) ) {
+			return;
+		}
+
+		add_filter( 'global_terms_enabled', '__return_false', 11 );
+		$this->global_terms_disabled = true;
+	}
+
+	protected function disable_trackbacks() {
+
+		if ( ! empty( $this->trackbacks_disabled ) ) {
+			return;
+		}
+
+		add_filter( 'pre_option_default_ping_status', function() {
+			return 'closed';
+		}, 11 );
+
+		add_filter( 'pre_option_default_pingback_flag', function() {
+			return null;
+		}, 11 );
+
+		$this->trackbacks_disabled = true;
 	}
 }
