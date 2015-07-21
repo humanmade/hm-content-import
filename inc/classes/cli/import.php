@@ -114,6 +114,10 @@ class Import extends \WP_CLI_Command {
 			$output = var_export( $output, true );
 		}
 
+		if ( ! $output ) {
+			return;
+		}
+
 		if ( $exit_on_output ) {
 			\WP_CLI::Error( $output );
 		} else {

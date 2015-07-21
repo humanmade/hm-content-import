@@ -88,8 +88,8 @@ abstract class Base {
 			return;
 		}
 
-		if ( $this->debugger ) {
-			call_user_func( $this->debugger, $output );
+		if ( $this->args['debugger'] ) {
+			call_user_func( $this->args['debugger'], $output );
 		}
 	}
 
