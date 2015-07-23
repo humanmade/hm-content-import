@@ -19,6 +19,8 @@ class Import extends \WP_CLI_Command {
 			'disable-trackbacks'   => true,
 		) );
 
+		$this->manage_disables( $args_assoc );
+
 		$import_type = $args[0];
 		$importer    = $this->get_importer( $import_type, $args_assoc );
 		$count_all   = ( $importer->get_count() - $args_assoc['offset'] );
