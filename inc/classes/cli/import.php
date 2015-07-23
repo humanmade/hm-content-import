@@ -44,6 +44,7 @@ class Import extends \WP_CLI_Command {
             $progress->tick( count( $items ) );
 
 			$this->save_progress( $import_type, $current_offset );
+			$this->clear_local_object_cache();
 		}
 
 		$this->clear_progress( $import_type );
@@ -74,8 +75,6 @@ class Import extends \WP_CLI_Command {
 			}
 
 			$current_offset += count( $items );
-
-			$this->clear_local_object_cache();
 		}
 
 	}
