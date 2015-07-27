@@ -1,4 +1,14 @@
 <?php
+/*
+Plugin Name: HM Content Import
+Description: Developer Framework for Importing external data into WordPress during site migration
+Version: 1.0
+Author: Human Made
+Author URI: http://hmn.md
+License: GPL3
+License URI: https://www.gnu.org/licenses/gpl-3.0.txt
+Text-Domain: hmci
+*/
 
 namespace HMCI;
 
