@@ -17,6 +17,10 @@ class Import extends \WP_CLI_Command {
 			'export-path'          => '',
 			'disable-global-terms' => true,
 			'disable-trackbacks'   => true,
+			'db-user'              => 'root',
+			'db-pass'              => '',
+			'db-host'              => 'localhost',
+			'db-name'              => '',
 		) );
 
 		$this->manage_disables( $args_assoc );
