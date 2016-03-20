@@ -4,7 +4,7 @@ namespace HMCI\Import_Type;
 
 class Attachment extends Post {
 
-	static function insert( $path, $post_data = array(), $canonical_id = false ) {
+	static function insert( $path, $post_data = array(), $canonical_id = false, $file_type_override = null ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
@@ -56,7 +56,7 @@ class Attachment extends Post {
 		require_once( ABSPATH . '/wp-admin/includes/image.php' );
 	}
 
-	protected static function prepare_file( $path, $is_url ) {
+	protected static function prepare_file( $path, $is_url, $file_type_override = null ) {
 
 		$file_array = array();
 
@@ -84,7 +84,9 @@ class Attachment extends Post {
 		// Fix file filename for query strings
 		preg_match( '/[^\?]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i', $path, $matches );
 
-        if ( empty( $matches ) ) {
+		if ( $file_type_override && empty( $matches ) ) {
+			$file_array['name']  = end( ( explode( '/', $path ) ) ) . '.' . $file_type_override;
+		} if ( empty( $matches ) ) {
             $file_array['name']  = end( ( explode( '/', $path ) ) ) . '.png';
         } else {
             $file_array['name'] = $matches[0];

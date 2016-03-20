@@ -19,7 +19,7 @@ abstract class Files extends Base {
 
 		foreach ( $files_paged as $file_path ) {
 
-			$items[] = $this->parse_item( $this->get_file_contents( $file_path ) );
+			$items[] = $this->get_file_contents( $file_path );
 		}
 
 		return $items;
