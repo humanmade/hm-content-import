@@ -4,7 +4,7 @@ namespace HMCI\Import_Type;
 
 class Attachment extends Post {
 
-	static function insert( $path, $post_data = array(), $canonical_id = false, $file_type_override = null ) {
+	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
@@ -45,6 +45,10 @@ class Attachment extends Post {
 		}
 
 		static::set_import_path_meta( $post_id, $path );
+
+		if ( $post_meta && is_array( $post_meta ) ) {
+			static::set_meta( $post_id, $post_meta );
+		}
 
 		return $post_id;
 	}

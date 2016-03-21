@@ -4,17 +4,13 @@ namespace HMCI\Import_Type;
 
 class Post extends Base {
 
-	static function insert( $post_data = array(), $canonical_id = false, $post_type = 'post' ) {
+	static function insert( $post_data = array(), $canonical_id = false, $post_meta = array() ) {
 
 		if ( empty( $post_data['post_type'] ) ) {
-			$post_data['post_type'] = $post_type;
+			$post_data['post_type'] = 'post';
 		}
 
-		if ( $post_data['post_type'] !== $post_type ) {
-			$post_type = $post_data['post_type'];
-		}
-
-        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, $post_type ) ) {
+        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, $post_data['post_type'] ) ) {
 			$post_data['ID'] = $current_id;
 		}
 
@@ -29,7 +25,11 @@ class Post extends Base {
 		}
 
 		if ( $canonical_id ) {
-			static::set_canonical_id( $post_id, $canonical_id, $post_type );
+			static::set_canonical_id( $post_id, $canonical_id, $post_data['post_type'] );
+		}
+
+		if ( $post_meta && is_array( $post_meta ) ) {
+			static::set_meta( $post_id, $post_meta );
 		}
 
 		return $post_id;

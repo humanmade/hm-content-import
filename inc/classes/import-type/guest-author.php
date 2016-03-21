@@ -4,7 +4,7 @@ namespace HMCI\Import_Type;
 
 class Guest_Author extends Post {
 
-	static function insert( $user_data = array(), $canonical_id = false ) {
+	static function insert( $user_data = array(), $canonical_id = false, $author_meta = array() ) {
 
 		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' ) ) {
 			return $current_id;
@@ -28,6 +28,10 @@ class Guest_Author extends Post {
 
 		if ( $canonical_id ) {
 			static::set_canonical_id( $post_id, $canonical_id, 'guest-author' );
+		}
+
+		if ( $author_meta && is_array( $author_meta ) ) {
+			static::set_meta( $post_id, $author_meta );
 		}
 
 		return $post_id;

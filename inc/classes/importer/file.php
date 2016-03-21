@@ -26,6 +26,7 @@ abstract class File extends Base {
 
 		return $items;
 	}
+
 	protected function get_file_contents( $file ) {
 
 		return file_get_contents( $file );

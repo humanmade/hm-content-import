@@ -4,7 +4,7 @@ namespace HMCI\Import_Type;
 
 class User extends Base {
 
-	static function insert( $user_data, $canonical_id = false ) {
+	static function insert( $user_data, $canonical_id = false, $user_meta = array() ) {
 
 		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			$user_data['ID'] = $current_id;
@@ -18,6 +18,10 @@ class User extends Base {
 
 		if ( $canonical_id ) {
 			static::set_canonical_id( $user_id, $canonical_id );
+		}
+
+		if ( $user_meta && is_array( $user_meta ) ) {
+			static::set_meta( $user_id, $user_meta );
 		}
 
 		return $user_id;

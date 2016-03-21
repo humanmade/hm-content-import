@@ -21,6 +21,7 @@ require_once( __DIR__ . '/inc/classes/importer/files.php' );
 require_once( __DIR__ . '/inc/classes/importer/json-files.php' );
 require_once( __DIR__ . '/inc/classes/importer/csv-file.php' );
 require_once( __DIR__ . '/inc/classes/importer/post-content.php' );
+require_once( __DIR__ . '/inc/classes/importer/xml-files.php' );
 
 require_once( __DIR__ . '/inc/classes/import-type/interface.php' );
 require_once( __DIR__ . '/inc/classes/import-type/base.php' );
