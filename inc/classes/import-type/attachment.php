@@ -81,7 +81,14 @@ class Attachment extends Post {
 
 		//Path is a file path
 		} else {
-			$file_array['tmp_name'] = $path;
+
+			$name = end( ( explode( '/', $path ) ) );
+
+			$tmp_path = sprintf( '/tmp/%s', $name );
+
+			copy( $path, $tmp_path );
+
+			$file_array['tmp_name'] = $tmp_path;
 		}
 
 		// Set variables for storage
