@@ -6,11 +6,17 @@ abstract class XML_Files extends Files {
 
 	public function parse_item( $item ) {
 
+		if ( ! $item ) {
+			return false;
+		}
+
 		if ( $item instanceof \SimpleXMLElement ) {
 			return $item;
 		}
 
-		return simplexml_load_string( $item, 'SimpleXMLElement' );
+		$xml = @simplexml_load_string( $item, 'SimpleXMLElement' );
+
+		return $xml;
 	}
 
 	protected function filter_files( $files ) {
