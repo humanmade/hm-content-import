@@ -12,6 +12,7 @@ abstract class Base {
 		$this->args = wp_parse_args( $args, array(
 			'items_per_loop'    => 100,
 			'verbose'           => true,
+			'auto_clear_cache'  => true,
 		) );
 
 		$verified = $this->verify_args();
@@ -26,8 +27,13 @@ abstract class Base {
 		$offset = 0;
 
 		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
+
 			$this->import_items( $items );
 			$offset += count( $items );
+
+			if ( $this->args['auto_clear_cache'] ) {
+				$this->clear_cache();
+			}
 		}
 	}
 
@@ -91,6 +97,27 @@ abstract class Base {
 		if ( $this->args['debugger'] ) {
 			call_user_func( $this->args['debugger'], $output );
 		}
+	}
+
+	protected function clear_cache() {
+
+		global $wpdb, $wp_object_cache;
+
+		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
+
+		if ( ! is_object( $wp_object_cache ) ) {
+			return;
+		}
+
+		$wp_object_cache->group_ops = array();
+		//$wp_object_cache->stats = array();
+		$wp_object_cache->memcache_debug = array();
+		$wp_object_cache->cache = array();
+
+		if ( is_callable( $wp_object_cache, '__remoteset' ) ) {
+			$wp_object_cache->__remoteset(); // important
+		}
+
 	}
 
 	abstract protected function insert_item( $item );

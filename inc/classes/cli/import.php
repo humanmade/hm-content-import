@@ -17,6 +17,7 @@ class Import extends \WP_CLI_Command {
 			'export-path'          => '',
 			'disable-global-terms' => true,
 			'disable-trackbacks'   => true,
+			'define-wp-importing'  => true,
 			'db-user'              => 'root',
 			'db-pass'              => '',
 			'db-host'              => 'localhost',
@@ -147,12 +148,23 @@ class Import extends \WP_CLI_Command {
 
 	protected function clear_local_object_cache() {
 
-		// Mitigate memory leak issues
-		global $wp_object_cache;
+		global $wpdb, $wp_object_cache;
 
-		if ( ! empty( $wp_object_cache->cache ) ) {
-			$wp_object_cache->cache = array();
+		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
+
+		if ( ! is_object( $wp_object_cache ) ) {
+			return;
 		}
+
+		$wp_object_cache->group_ops = array();
+		//$wp_object_cache->stats = array();
+		$wp_object_cache->memcache_debug = array();
+		$wp_object_cache->cache = array();
+
+		if ( is_callable( $wp_object_cache, '__remoteset' ) ) {
+			$wp_object_cache->__remoteset(); // important
+		}
+
 	}
 
 	protected function manage_disables( $args ) {
@@ -163,6 +175,10 @@ class Import extends \WP_CLI_Command {
 
 		if ( ! empty( $args['disable-trackbacks'] ) ) {
 			$this->disable_trackbacks();
+		}
+
+		if ( ! empty( $args['define-wp-importing'] ) && ! defined( 'WP_IMPORTING' ) ) {
+			define( 'WP_IMPORTING', true );
 		}
 	}
 
