@@ -4,8 +4,9 @@ namespace HMCI;
 
 class Master {
 
-	static $instance  = false;
-	static $importers = array();
+	static $instance   = false;
+	static $importers  = array();
+	static $validators = array();
 
 	protected function construct() {}
 
@@ -54,10 +55,45 @@ class Master {
 		return $importer;
 	}
 
+	public static function add_validator( $key, $class_name ) {
+
+		if ( class_exists( $class_name ) ) {
+			self::$validators[$key] = $class_name;
+		}
+	}
+
+	public static function get_validators() {
+		return self::$validators;
+	}
+
+	/**
+	 * @param $key
+	 * @return bool | \WP_Error | Validator\Base
+	 */
+	public static function get_validator_instance( $key, $args = array() ) {
+
+		$importers = static::get_validators();
+
+		if ( ! $importers[ $key ] ) {
+			return false;
+		}
+
+		try {
+
+			$importer = new $importers[ $key ]( $args );
+
+		} catch ( \Exception $e ) {
+
+			return new \WP_Error( 500, $e->getMessage() );
+		}
+
+		return $importer;
+	}
+
 	protected static function init_cli() {
 
 		if ( defined( 'WP_CLI' ) && 'WP_CLI' ) {
-			\WP_CLI::add_command( 'hmci',  apply_filters( 'hmci_wp_cli_class_name', __NAMESPACE__ . '\\CLI\\Import' ) );
+			\WP_CLI::add_command( 'hmci',  apply_filters( 'hmci_wp_cli_class_name', __NAMESPACE__ . '\\CLI\\HMCI' ) );
 		}
 	}
 }

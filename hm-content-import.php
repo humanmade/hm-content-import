@@ -23,6 +23,10 @@ require_once( __DIR__ . '/inc/classes/importer/csv-file.php' );
 require_once( __DIR__ . '/inc/classes/importer/post-content.php' );
 require_once( __DIR__ . '/inc/classes/importer/xml-files.php' );
 
+require_once( __DIR__ . '/inc/classes/validator/base.php' );
+require_once( __DIR__ . '/inc/classes/validator/post.php' );
+require_once( __DIR__ . '/inc/classes/validator/post-content-regex.php' );
+
 require_once( __DIR__ . '/inc/classes/import-type/interface.php' );
 require_once( __DIR__ . '/inc/classes/import-type/base.php' );
 require_once( __DIR__ . '/inc/classes/import-type/post.php' );
@@ -34,7 +38,7 @@ require_once( __DIR__ . '/inc/classes/import-type/term.php' );
 require_once( __DIR__ . '/inc/classes/master.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once( __DIR__ . '/inc/classes/cli/import.php' );
+	require_once( __DIR__ . '/inc/classes/cli/hmci.php' );
 }
 
 add_action( 'init', function() {

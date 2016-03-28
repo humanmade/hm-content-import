@@ -4,7 +4,7 @@ namespace HMCI\CLI;
 
 use HMCI\Master;
 
-class Import extends \WP_CLI_Command {
+class HMCI extends \WP_CLI_Command {
 
 	public function import( $args, $args_assoc ) {
 
@@ -38,7 +38,7 @@ class Import extends \WP_CLI_Command {
 		$progress->display();
 
 		if ( $args_assoc['resume'] ) {
-			$current_offset = $this->get_progress( $import_type );
+			$current_offset = $this->get_progress( 'importer', $import_type );
 			$progress->tick( $current_offset );
 		} else {
 			$current_offset = 0;
@@ -50,12 +50,60 @@ class Import extends \WP_CLI_Command {
 			$current_offset += count( $items );
             $progress->tick( count( $items ) );
 
-			$this->save_progress( $import_type, $current_offset );
+			$this->save_progress( 'importer', $import_type, $current_offset );
 			$this->clear_local_object_cache();
 		}
 
-		$this->clear_progress( $import_type );
+		$this->clear_progress( 'importer', $import_type );
 		$progress->finish();
+	}
+
+	public function validate( $args, $args_assoc ) {
+
+		$args_assoc = wp_parse_args( $args_assoc, array(
+			'count'                => 0,
+			'offset'               => 0,
+			'resume'               => false,
+			'verbose'              => true,
+			'show-progress'        => true,
+		) );
+
+		$validate_type = $args[0];
+		$validator    = $this->get_validator( $validate_type, $args_assoc );
+		$count_all   = ( $validator->get_count() - $args_assoc['offset'] );
+		$count       = ( $count_all < absint( $args_assoc['count'] ) || $args_assoc['count'] === 0 ) ? $count_all : absint( $args_assoc['count'] );
+		$offset      = absint( $args_assoc['offset'] );
+		$total       = $count + $offset;
+
+		if ( $args_assoc['show-progress'] ) {
+			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validate_type, $count ), $count, 100 );
+		}
+
+		if ( $args_assoc['resume'] ) {
+			$current_offset = $this->get_progress( 'validator', $validate_type );
+
+			if ( ! empty( $progress ) ) {
+				$progress->tick( $current_offset );
+			}
+		} else {
+			$current_offset = 0;
+		}
+
+		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
+
+			$validator->validate_items( $items );
+			$current_offset += count( $items );
+
+			if ( ! empty( $progress ) ) {
+				$progress->tick( count( $items ) );
+			}
+
+			$this->save_progress( 'validator', $validate_type, $current_offset );
+			$this->clear_local_object_cache();
+		}
+
+		$this->clear_progress( 'validator', $validate_type );
+
 	}
 
 	public function debug_contents( $args, $args_assoc ) {
@@ -84,6 +132,25 @@ class Import extends \WP_CLI_Command {
 			$current_offset += count( $items );
 		}
 
+	}
+
+	protected function get_validator( $validator_type, $args ) {
+
+		if ( $args['verbose'] ) {
+			$args['debugger'] = array( $this, 'debug' );
+		}
+
+		$validator = Master::get_validator_instance( $validator_type, $args );
+
+		if ( ! $validator ) {
+			$this->debug( $validator_type . ' Is not a valid validator type', true );
+		}
+
+		if ( is_wp_error( $validator ) ) {
+			$this->debug( $validator, true );
+		}
+
+		return $validator;
 	}
 
 	protected function get_importer( $import_type, $args ) {
@@ -131,19 +198,19 @@ class Import extends \WP_CLI_Command {
 		}
 	}
 
-	protected function clear_progress( $import_type ) {
+	protected function clear_progress( $type, $name ) {
 
-		delete_option( 'hmci_import_pg_' . md5( $import_type ) );
+		delete_option( 'hmci_pg_' . md5( $type . '~' . $name ) );
 	}
 
-	protected function save_progress( $import_type, $count ) {
+	protected function save_progress( $type, $name, $count ) {
 
-		update_option( 'hmci_import_pg_' . md5( $import_type ), $count );
+		update_option( 'hmci_pg_' . md5( $type . '~' . $name ), $count );
 	}
 
-	protected function get_progress( $import_type ) {
+	protected function get_progress( $type, $name ) {
 
-		return absint( get_option( 'hmci_import_pg_' . md5( $import_type ), 0 ) );
+		return absint( get_option( 'hmci_pg_' . md5( $type . '~' . $name ), 0 ) );
 	}
 
 	protected function clear_local_object_cache() {
