@@ -9,19 +9,20 @@ class HMCI extends \WP_CLI_Command {
 	public function import( $args, $args_assoc ) {
 
 		$args_assoc = wp_parse_args( $args_assoc, array(
-			'count'                => 0,
-			'offset'               => 0,
-			'resume'               => false,
-			'verbose'              => false,
-			'dry-run'              => false,
-			'export-path'          => '',
-			'disable-global-terms' => true,
-			'disable-trackbacks'   => true,
-			'define-wp-importing'  => true,
-			'db-user'              => 'root',
-			'db-pass'              => '',
-			'db-host'              => 'localhost',
-			'db-name'              => '',
+			'count'                       => 0,
+			'offset'                      => 0,
+			'resume'                      => false,
+			'verbose'                     => false,
+			'dry-run'                     => false,
+			'export-path'                 => '',
+			'disable-global-terms'        => true,
+			'disable-trackbacks'          => true,
+			'disable-intermediate-images' => false,
+			'define-wp-importing'         => true,
+			'db-user'                     => 'root',
+			'db-pass'                     => '',
+			'db-host'                     => 'localhost',
+			'db-name'                     => '',
 		) );
 
 		$this->manage_disables( $args_assoc );
@@ -244,6 +245,10 @@ class HMCI extends \WP_CLI_Command {
 			$this->disable_trackbacks();
 		}
 
+		if ( ! empty( $args['disable-intermediate-images'] ) ) {
+			$this->disable_intermediate_images();
+		}
+
 		if ( ! empty( $args['define-wp-importing'] ) && ! defined( 'WP_IMPORTING' ) ) {
 			define( 'WP_IMPORTING', true );
 		}
@@ -274,5 +279,15 @@ class HMCI extends \WP_CLI_Command {
 		}, 11 );
 
 		$this->trackbacks_disabled = true;
+	}
+
+	protected function disable_intermediate_images() {
+
+		add_filter( 'intermediate_image_sizes_advanced', function( $sizes, $metadata ) {
+
+			return array();
+
+		}, 10, 2 );
+
 	}
 }
