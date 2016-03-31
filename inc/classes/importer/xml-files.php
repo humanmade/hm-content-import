@@ -14,7 +14,7 @@ abstract class XML_Files extends Files {
 			return $item;
 		}
 
-		$xml = @simplexml_load_string( $item, 'SimpleXMLElement' );
+		$xml = simplexml_load_string( $item, 'SimpleXMLElement' );
 
 		return $xml;
 	}
