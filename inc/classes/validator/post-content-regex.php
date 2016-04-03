@@ -7,8 +7,8 @@ class Post_Content_Regex extends Post {
 	public function __construct( $args = array()  ) {
 
 		$args = wp_parse_args( $args, array(
-			'delimiter'   => '~',
-			'match_index' => 0,
+			'delimiter'       => '~',
+			'match_index'     => 0,
 		) );
 
 		parent::__construct( $args );
@@ -31,23 +31,11 @@ class Post_Content_Regex extends Post {
 		$match_index = $this->args['match_index'];
 		$has_match   = preg_match_all( sprintf( '%s%s%ss', $delimiter, $regex, $delimiter ), $content, $matches );
 
-		if ( ! isset( $matches[ $match_index ] ) ) {
-			return;
+		if ( ! $has_match || empty( $matches[ $match_index ] ) ) {
+			return false;
 		}
 
-		foreach( (array) $matches[ $match_index ] as $single_match ) {
-
-			$this->debug( sprintf( '%s - %s', $this->pad_column( $item->ID ), $single_match ) );
-		}
-
+		return array( $item->ID, implode( ', ', ( (array) $matches[ $match_index ] ) ) );
 	}
 
-	protected function pad_column( $string, $chars = 10 ) {
-
-		while( strlen( $string ) < $chars ) {
-			$string .= ' ';
-		}
-
-		return $string;
-	}
 }

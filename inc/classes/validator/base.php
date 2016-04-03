@@ -6,6 +6,7 @@ abstract class Base {
 
 	var $args     = array();
 	var $debugger = false;
+	var $output   = array();
 
 	public function __construct( $args = array() ) {
 
@@ -13,6 +14,9 @@ abstract class Base {
 			'items_per_loop'    => 100,
 			'verbose'           => true,
 			'auto_clear_cache'  => true,
+			'column_padding'    => 10,
+			'output'            => 'debugger',
+			'output_path'       => 'validation.csv',
 		) );
 
 		$verified = $this->verify_args();
@@ -43,10 +47,12 @@ abstract class Base {
 
 			$r = $this->validate_item( $item );
 
-			if ( is_wp_error( $r ) ) {
-				$this->debug( $r );
+			if ( $r ) {
+				$this->output[] = $r;
 			}
 		}
+
+		$this->output_validation();
 	}
 
 	public function get_count() {
@@ -101,6 +107,54 @@ abstract class Base {
 			$wp_object_cache->__remoteset(); // important
 		}
 
+	}
+
+	protected function pad_column( $string, $chars = 10 ) {
+
+		while( strlen( $string ) < $chars ) {
+			$string .= ' ';
+		}
+
+		return $string;
+	}
+
+	protected function output_validation() {
+
+		switch( $this->args['output'] ) {
+
+			case 'csv':
+				$this->output_csv();
+				break;
+
+			default:
+				$this->output_debugger();
+		}
+	}
+
+	protected function output_debugger() {
+
+		foreach( $this->output as $output ) {
+
+			$padded = array_map( array( $this, 'pad_column' ), $output );
+
+			$this->debug( implode( ' - ', $padded ) );
+		}
+	}
+
+	protected function output_csv() {
+
+		$fp = fopen( $this->args['output_path'] , 'w');
+
+		if ( ! $fp ) {
+			$this->debug( sprintf( 'Could not write to file %s', $this->args['output_path'] ) );
+		}
+
+		foreach( $this->output as $output ) {
+
+			fputcsv( $fp, $output );
+		}
+
+		fclose( $fp );
 	}
 
 	abstract protected function validate_item( $item );
