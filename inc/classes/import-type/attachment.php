@@ -9,9 +9,11 @@ class Attachment extends Post {
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
 
-        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
-
+		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			$post_data['ID'] = $current_id;
+		}
+
+        if ( $post_data['ID'] ) {
 
 	        if ( $force_update_existing === true ) {
 
@@ -21,10 +23,10 @@ class Attachment extends Post {
 			        static::set_meta( $post_id, $post_meta );
 		        }
 
-		        static::set_import_path_meta( $current_id, $path );
+		        static::set_import_path_meta( $post_data['ID'], $path );
 	        }
 
-			return (int) $current_id;
+			return (int) $post_data['ID'];
 		}
 
 		static::require_dependencies();
