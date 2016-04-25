@@ -4,20 +4,29 @@ namespace HMCI\Import_Type;
 
 class Attachment extends Post {
 
-	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null ) {
+	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
 
-        if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
-
+		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			$post_data['ID'] = $current_id;
+		}
 
-			$post_id = wp_update_post( $post_data, true );
+        if ( $post_data['ID'] ) {
 
-	        static::set_import_path_meta( $post_id, $path );
+	        if ( $force_update_existing === true ) {
 
-			return $post_id;
+		        $post_id = wp_update_post( $post_data, true );
+
+		        if ( $post_meta && is_array( $post_meta ) ) {
+			        static::set_meta( $post_id, $post_meta );
+		        }
+
+		        static::set_import_path_meta( $post_data['ID'], $path );
+	        }
+
+			return (int) $post_data['ID'];
 		}
 
 		static::require_dependencies();
