@@ -103,6 +103,8 @@ class Attachment extends Post {
             $file_array['name'] = $matches[0];
         }
 
+		$file_array['name'] = sanitize_file_name( $file_array['name'] );
+
 		return $file_array;
 	}
 
