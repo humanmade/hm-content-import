@@ -32,16 +32,47 @@ abstract class Post_Content extends Base {
 
 	protected function get_post_query( $args ) {
 
-		$query = new \WP_Query( wp_parse_args( $args, $this->get_query_args() ) );
+		$query = new \WP_Query( wp_parse_args( $args, $this->get_global_query_args() ) );
 
 		return $query;
 	}
 
-	protected function get_query_args( ) {
+	protected function get_global_query_args() {
+
+		$whitelist = array(
+			'post_type',
+			'post_status',
+			'post_author',
+		);
+
+		$args = array();
+
+		foreach( $whitelist as $accepted_arg ) {
+
+			if ( isset( $this->args[ $accepted_arg ] ) ) {
+				$args[ $accepted_arg ] = $this->args[ $accepted_arg ];
+			}
+		}
+
+		return $args;
+	}
+
+	public static function get_arg_definitions() {
 
 		return array(
-			'post_type'      => 'any',
-			'post_status'    => 'any',
+			'post_type' => array(
+				'default'       => 'any',
+				'type'          => 'string',
+				'description'   => __( 'Post type for post query.', 'hmci' )
+			),
+			'post_status' => array(
+				'type'          => 'string',
+				'description'   => __( 'Post status for post query.', 'hmci' )
+			),
+			'post_author' => array(
+				'type'          => 'numeric',
+				'description'   => __( 'Post author for post query.', 'hmci' )
+			),
 		);
 	}
 

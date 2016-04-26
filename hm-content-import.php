@@ -13,6 +13,7 @@ Text-Domain: hmci
 namespace HMCI;
 
 require_once( __DIR__ . '/inc/classes/importer/traits/file-trait.php' );
+require_once( __DIR__ . '/inc/classes/importer/interfaces/base-interface.php' );
 
 require_once( __DIR__ . '/inc/classes/importer/base.php' );
 require_once( __DIR__ . '/inc/classes/importer/database.php' );

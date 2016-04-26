@@ -13,16 +13,10 @@ class HMCI extends \WP_CLI_Command {
 			'offset'                      => 0,
 			'resume'                      => false,
 			'verbose'                     => false,
-			'dry-run'                     => false,
-			'export-path'                 => '',
-			'disable-global-terms'        => true,
-			'disable-trackbacks'          => true,
-			'disable-intermediate-images' => false,
-			'define-wp-importing'         => true,
-			'db-user'                     => 'root',
-			'db-pass'                     => '',
-			'db-host'                     => 'localhost',
-			'db-name'                     => '',
+			'disable_global_terms'        => true,
+			'disable_trackbacks'          => true,
+			'disable_intermediate_images' => false,
+			'define_wp_importing'         => true,
 		) );
 
 		$this->manage_disables( $args_assoc );
@@ -45,7 +39,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items-per-loop'] ) ) {
 
 			$importer->import_items( $items );
 			$current_offset += count( $items );
@@ -90,7 +84,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items-per-loop'] ) ) {
 
 			$validator->validate_items( $items );
 			$current_offset += count( $items );
@@ -107,32 +101,54 @@ class HMCI extends \WP_CLI_Command {
 
 	}
 
-	public function debug_contents( $args, $args_assoc ) {
+	public function help() {
 
-		$args_assoc = wp_parse_args( $args_assoc, array(
-			'count'       => 0,
-			'offset'      => 0,
-			'verbose'     => false,
-			'export-path' => ''
-		) );
+		$this->debug( "AVAILABLE IMPORTERS (hmci import)" );
 
-		$import_type    = $args[0];
-		$importer       = $this->get_importer( $import_type, $args_assoc );
-		$count_all      = ( $importer->get_count() - $args_assoc['offset'] );
-		$count          = ( $count_all < absint( $args_assoc['count'] ) || $args_assoc['count'] === 0 ) ? $count_all : absint( $args_assoc['count'] );
-		$offset         = absint( $args_assoc['offset'] );
-		$total          = $count + $offset;
-		$current_offset = 0;
+		foreach( Master::get_importers() as $impoter_key => $importer ) {
 
-		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, 1 ) ) {
+			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
 
-			foreach( $items as $item ) {
-				$this->debug( $item );
+			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+
+			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+
+			$args = call_user_func( array( $importer, 'get_all_arg_definitions' ) );
+
+			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+
+			foreach( $args as $arg => $data ) {
+
+				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+
+				foreach( $data as $data_key => $data_val ) {
+
+					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+				}
 			}
+		}
+	}
 
-			$current_offset += count( $items );
+	function pad_string( $string, $chars  = 15 ) {
+
+		while( strlen( $string ) < $chars ) {
+			$string .= ' ';
 		}
 
+		return $string;
+	}
+
+	function get_tabs( $tabs = 0 ) {
+
+		$single_tab = '    ';
+		$string     = '';
+
+		for( $i=0; $i<$tabs; $i++ ) {
+
+			$string .= $single_tab;
+		}
+
+		return $string;
 	}
 
 	protected function get_validator( $validator_type, $args ) {
@@ -237,19 +253,19 @@ class HMCI extends \WP_CLI_Command {
 
 	protected function manage_disables( $args ) {
 
-		if ( ! empty( $args['disable-global-terms'] ) ) {
+		if ( ! empty( $args['disable_global_terms'] ) ) {
 			$this->disable_global_terms();
 		}
 
-		if ( ! empty( $args['disable-trackbacks'] ) ) {
+		if ( ! empty( $args['disable_trackbacks'] ) ) {
 			$this->disable_trackbacks();
 		}
 
-		if ( ! empty( $args['disable-intermediate-images'] ) ) {
+		if ( ! empty( $args['disable_intermediate_images'] ) ) {
 			$this->disable_intermediate_images();
 		}
 
-		if ( ! empty( $args['define-wp-importing'] ) && ! defined( 'WP_IMPORTING' ) ) {
+		if ( ! empty( $args['define_wp_importing'] ) && ! defined( 'WP_IMPORTING' ) ) {
 			define( 'WP_IMPORTING', true );
 		}
 	}
