@@ -93,7 +93,7 @@ class Attachment extends Post {
 
 		// Set variables for storage
 		// Fix file filename for query strings
-		preg_match( '/[^\/?]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i', $path, $matches );
+		preg_match( apply_filters( 'hmci_attachment_filename_pattern', '/[^\?\/\=]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i' ), $path, $matches );
 
 		if ( $file_type_override && empty( $matches ) ) {
 			$file_array['name']  = end( ( explode( '/', $path ) ) ) . '.' . $file_type_override;
