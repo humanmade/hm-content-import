@@ -12,29 +12,30 @@ Text-Domain: hmci
 
 namespace HMCI;
 
-require_once( __DIR__ . '/inc/classes/importer/traits/file-trait.php' );
-require_once( __DIR__ . '/inc/classes/importer/interfaces/base-interface.php' );
+require_once( __DIR__ . '/inc/classes/source/base.php' );
+require_once( __DIR__ . '/inc/classes/source/database.php' );
+require_once( __DIR__ . '/inc/classes/source/posts.php' );
+require_once( __DIR__ . '/inc/classes/source/files.php' );
+require_once( __DIR__ . '/inc/classes/source/file.php' );
+require_once( __DIR__ . '/inc/classes/source/json-files.php' );
+require_once( __DIR__ . '/inc/classes/source/csv-file.php' );
+require_once( __DIR__ . '/inc/classes/source/xml-files.php' );
 
+require_once( __DIR__ . '/inc/classes/importer/interfaces/base.php' );
 require_once( __DIR__ . '/inc/classes/importer/base.php' );
-require_once( __DIR__ . '/inc/classes/importer/database.php' );
-require_once( __DIR__ . '/inc/classes/importer/file.php' );
-require_once( __DIR__ . '/inc/classes/importer/files.php' );
-require_once( __DIR__ . '/inc/classes/importer/json-files.php' );
-require_once( __DIR__ . '/inc/classes/importer/csv-file.php' );
-require_once( __DIR__ . '/inc/classes/importer/post-content.php' );
-require_once( __DIR__ . '/inc/classes/importer/xml-files.php' );
 
+require_once( __DIR__ . '/inc/classes/validator/interfaces/base.php' );
 require_once( __DIR__ . '/inc/classes/validator/base.php' );
-require_once( __DIR__ . '/inc/classes/validator/post.php' );
 require_once( __DIR__ . '/inc/classes/validator/post-content-regex.php' );
 
-require_once( __DIR__ . '/inc/classes/import-type/interface.php' );
-require_once( __DIR__ . '/inc/classes/import-type/base.php' );
-require_once( __DIR__ . '/inc/classes/import-type/post.php' );
-require_once( __DIR__ . '/inc/classes/import-type/user.php' );
-require_once( __DIR__ . '/inc/classes/import-type/guest-author.php' );
-require_once( __DIR__ . '/inc/classes/import-type/attachment.php' );
-require_once( __DIR__ . '/inc/classes/import-type/term.php' );
+require_once( __DIR__ . '/inc/classes/destination/interfaces/base.php' );
+require_once( __DIR__ . '/inc/classes/destination/base.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/base.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/post.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/user.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/guest-author.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/attachment.php' );
+require_once( __DIR__ . '/inc/classes/destination/wp/term.php' );
 
 require_once( __DIR__ . '/inc/classes/master.php' );
 

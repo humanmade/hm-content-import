@@ -1,6 +1,6 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination\WP;
 
 class Post extends Base {
 

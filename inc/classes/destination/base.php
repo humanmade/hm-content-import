@@ -1,8 +1,8 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination;
 
-abstract class Base implements Base_Interface {
+abstract class Base implements Interfaces\Base {
 
 	static function get_canonical_id_key() {
 

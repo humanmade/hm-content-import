@@ -2,7 +2,11 @@
 
 namespace HMCI\Validator;
 
-class Post_Content_Regex extends Post {
+use HMCI\Source;
+
+class Post_Content_Regex extends Base {
+
+	use Source\Posts;
 
 	public function __construct( $args = array()  ) {
 
@@ -23,6 +27,11 @@ class Post_Content_Regex extends Post {
 		return true;
 	}
 
+	static function get_args_definitions() {
+
+
+	}
+
 	protected function validate_item( $item ) {
 
 		$content     = $item->post_content;
@@ -36,6 +45,11 @@ class Post_Content_Regex extends Post {
 		}
 
 		return array( $item->ID, implode( ', ', ( (array) $matches[ $match_index ] ) ) );
+	}
+
+	public static function get_description() {
+
+		return __( 'Post content regex validator, pass in regex to match validation failure triggers.', 'hmci' );
 	}
 
 }

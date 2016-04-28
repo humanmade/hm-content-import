@@ -2,10 +2,12 @@
 
 namespace HMCI\Importer;
 
-abstract class Base implements Base_Interface {
+use HMCI\Importer\Interfaces;
 
-	var $args     = array();
+abstract class Base implements Interfaces\Base {
+
 	var $debugger = false;
+	var $args     = array();
 
 	public function __construct( $args = array() ) {
 
@@ -60,54 +62,6 @@ abstract class Base implements Base_Interface {
 		return $id;
 	}
 
-	public function get_count() {
-
-		$offset = 0;
-
-		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
-
-			$offset += count( $items );
-		}
-
-		return $offset;
-	}
-
-	public function parse_item( $item ) {
-
-		return $item;
-	}
-
-
-	protected function parse_args( $args ) {
-
-		$this->args = $args;
-
-		foreach( $this->get_all_arg_definitions() as $arg => $data ) {
-
-			// Arg is not set but has default, define it
-			if ( ! isset( $this->args[ $arg ] ) && isset( $data['default'] ) ) {
-				$this->args[ $arg ] = $data['default'];
-			}
-
-			// Missing required arg
-			if ( ! empty( $data['required'] ) && ! array_key_exists( $arg, $this->args ) ) {
-				return new \WP_Error( 'hmci_missing_required_arg', sprintf( __( 'Required arg: %s is missing', 'hmci' ), $arg ) );
-			}
-
-			// Arg value not in whitelist
-			if ( ! empty( $data['values'] ) && is_array( $data['values'] ) && ! in_array( $this->args[ $arg ], $data['values'] ) ) {
-				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has the following options: %s', 'hmci' ), $arg, implode( ', ', $data['values'] ) ) );
-			}
-
-			// Arg type is numeric but non-numeric value passed
-			if ( ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
-				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
-			}
-		}
-
-		return true;
-	}
-
 	protected function debug( $output ) {
 
 		if ( empty( $this->args['verbose'] ) ) {
@@ -140,7 +94,37 @@ abstract class Base implements Base_Interface {
 
 	}
 
-	public static function get_all_arg_definitions() {
+	protected function parse_args( $args ) {
+
+		$this->args = $args;
+
+		foreach( $this->get_args() as $arg => $data ) {
+
+			// Arg is not set but has default, define it
+			if ( ! isset( $this->args[ $arg ] ) && isset( $data['default'] ) ) {
+				$this->args[ $arg ] = $data['default'];
+			}
+
+			// Missing required arg
+			if ( ! empty( $data['required'] ) && ! array_key_exists( $arg, $this->args ) ) {
+				return new \WP_Error( 'hmci_missing_required_arg', sprintf( __( 'Required arg: %s is missing', 'hmci' ), $arg ) );
+			}
+
+			// Arg value not in whitelist
+			if ( ! empty( $data['values'] ) && is_array( $data['values'] ) && ! in_array( $this->args[ $arg ], $data['values'] ) ) {
+				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has the following options: %s', 'hmci' ), $arg, implode( ', ', $data['values'] ) ) );
+			}
+
+			// Arg type is numeric but non-numeric value passed
+			if ( ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
+				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
+			}
+		}
+
+		return true;
+	}
+
+	public static function get_args() {
 
 		$global_args = array(
 			'items_per_loop'    => array(
@@ -151,7 +135,7 @@ abstract class Base implements Base_Interface {
 			'verbose'           => array(
 				'default'       => true,
 				'type'          => 'bool',
-				'description'   => __( 'Dictate whether or not to output logging data during import', 'hmci' )
+				'description'   => __( 'Dictate level of outputting', 'hmci' )
 			),
 			'auto_clear_cache'  => array(
 				'default'       => true,
@@ -160,11 +144,13 @@ abstract class Base implements Base_Interface {
 			),
 		);
 
-		return wp_parse_args( static::get_arg_definitions(), $global_args );
+		return array_merge( static::get_source_args(), static::get_importer_args(), $global_args );
+	}
+
+	public static function get_importer_args() {
+
+		return array();
 	}
 
 	abstract protected function insert_item( $item );
-
-	abstract public function get_items( $offset, $count );
-
 }

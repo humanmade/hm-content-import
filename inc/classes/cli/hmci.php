@@ -39,7 +39,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items-per-loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
 
 			$importer->import_items( $items );
 			$current_offset += count( $items );
@@ -84,7 +84,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items-per-loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
 
 			$validator->validate_items( $items );
 			$current_offset += count( $items );
@@ -103,7 +103,7 @@ class HMCI extends \WP_CLI_Command {
 
 	public function help() {
 
-		$this->debug( "AVAILABLE IMPORTERS (hmci import)" );
+		$this->debug( "\r\nAVAILABLE IMPORTERS (hmci import)" );
 
 		foreach( Master::get_importers() as $impoter_key => $importer ) {
 
@@ -113,7 +113,32 @@ class HMCI extends \WP_CLI_Command {
 
 			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
 
-			$args = call_user_func( array( $importer, 'get_all_arg_definitions' ) );
+			$args = call_user_func( array( $importer, 'get_args' ) );
+
+			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+
+			foreach( $args as $arg => $data ) {
+
+				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+
+				foreach( $data as $data_key => $data_val ) {
+
+					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+				}
+			}
+		}
+
+		$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
+
+		foreach( Master::get_validators() as $impoter_key => $importer ) {
+
+			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
+
+			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+
+			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+
+			$args = call_user_func( array( $importer, 'get_args' ) );
 
 			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
 

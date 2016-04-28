@@ -1,8 +1,8 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination\Interfaces;
 
-interface Base_Interface {
+interface Base {
 
 	static function exists( $canonical_id );
 
@@ -14,4 +14,5 @@ interface Base_Interface {
 
 	static function get_id_from_canonical_id( $canonical_id );
 
+	static function get_canonical_id_key();
 }
