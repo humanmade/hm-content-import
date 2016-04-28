@@ -6,7 +6,7 @@ trait File_Trait {
 
 	protected function get_files_in_path() {
 
-		$path        = $this->args['export-path'];
+		$path        = $this->args['export_path'];
 		$check_paths = array( $path, ABSPATH . '/' . $path, ABSPATH . '../' . $path );
 		$path_found  = '';
 
@@ -18,7 +18,7 @@ trait File_Trait {
 		}
 
 		if ( ! $path_found ) {
-			return new \WP_Error( 404, __( 'Path not found', 'hmci' ) );
+			return new \WP_Error( 'hmci_export_path_not_found', __( sprintf( 'Path not found. Attempted paths: %s', implode( ', ', $check_paths ) ), 'hmci' ) );
 		}
 
 		if ( is_dir( $path_found ) ) {
@@ -37,9 +37,9 @@ trait File_Trait {
 		return $files;
 	}
 
-	protected function verify_args() {
+	protected function parse_args( $args ) {
 
-		$response = parent::verify_args();
+		$response = parent::parse_args( $args );
 
 		if ( ! $response || is_wp_error( $response ) ) {
 			return $response;
@@ -52,5 +52,16 @@ trait File_Trait {
 		}
 
 		return true;
+	}
+
+	public static function get_arg_definitions() {
+
+		return array(
+			'export_path' => array(
+				'required'      => true,
+				'type'          => 'string',
+				'description'   => __( 'Export path, either absolute path or relative ABSPATH', 'hmci' )
+			)
+		);
 	}
 }

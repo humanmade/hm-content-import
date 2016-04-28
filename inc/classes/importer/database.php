@@ -19,33 +19,32 @@ abstract class Database extends Base {
 
 	public function set_db() {
 
-		$this->database_connection = new \wpdb( $this->args['db-user'], $this->args['db-pass'], $this->args['db-name'], $this->args['db-host'] );
+		$this->database_connection = new \wpdb( $this->args['db_user'], $this->args['db_pass'], $this->args['db_name'], $this->args['db_host'] );
 	}
 
-	protected function verify_args() {
+	public static function get_arg_definitions() {
 
-		$parent = parent::verify_args();
-
-		if ( is_wp_error( $parent ) || ! $parent ) {
-			return $parent;
-		}
-
-		if ( empty( $this->args['db-user'] ) ) {
-			return new \WP_Error( '500', __( 'No db-user arg was specified' ) );
-		}
-
-		if ( ! isset( $this->args['db-pass'] ) ) {
-			return new \WP_Error( '500', __( 'No db-pass arg was specified' ) );
-		}
-
-		if ( empty( $this->args['db-host'] ) ) {
-			return new \WP_Error( '500', __( 'No db-host arg was specified' ) );
-		}
-
-		if ( empty( $this->args['db-name'] ) ) {
-			return new \WP_Error( '500', __('No db-name arg was specified') );
-		}
-
-		return true;
+		return array(
+			'db_user' => array(
+				'default'       => DB_USER,
+				'type'          => 'string',
+				'description'   => __( 'DB username credential for source database.', 'hmci' )
+			),
+			'db_pass' => array(
+				'default'       => DB_PASSWORD,
+				'type'          => 'string',
+				'description'   => __( 'DB password credential for source database.', 'hmci' )
+			),
+			'db_name' => array(
+				'required'      => true,
+				'type'          => 'string',
+				'description'   => __( 'DB name for source database.', 'hmci' )
+			),
+			'db_host' => array(
+				'default'       => DB_HOST,
+				'type'          => 'string',
+				'description'   => __( 'DB host for source database.', 'hmci' )
+			)
+		);
 	}
 }
