@@ -27,11 +27,6 @@ class Post_Content_Regex extends Base {
 		return true;
 	}
 
-	static function get_args_definitions() {
-
-
-	}
-
 	protected function validate_item( $item ) {
 
 		$content     = $item->post_content;
@@ -45,6 +40,27 @@ class Post_Content_Regex extends Base {
 		}
 
 		return array( $item->ID, implode( ', ', ( (array) $matches[ $match_index ] ) ) );
+	}
+
+	public static function get_validator_args() {
+
+		return array(
+			'regex' => array(
+				'required'      => true,
+				'type'          => 'string',
+				'description'   => __( 'Regex pattern to be used', 'hmci' )
+			),
+			'delimiter' => array(
+				'default'       => '~',
+				'type'          => 'string',
+				'description'   => __( 'Regex delimiter', 'hmci' )
+			),
+			'match_index' => array(
+				'default'       => 0,
+				'type'          => 'numeric',
+				'description'   => __( 'Regex match index', 'hmci' )
+			),
+		);
 	}
 
 	public static function get_description() {
