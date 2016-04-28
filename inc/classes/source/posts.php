@@ -43,7 +43,7 @@ trait Posts {
 		return $args;
 	}
 
-	public static function get_arg_definitions() {
+	public static function get_source_args() {
 
 		return array(
 			'post_type' => array(
