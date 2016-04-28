@@ -24,7 +24,7 @@ trait Database {
 		$this->database_connection = new \wpdb( $this->args['db_user'], $this->args['db_pass'], $this->args['db_name'], $this->args['db_host'] );
 	}
 
-	public static function get_arg_definitions() {
+	public static function get_source_args() {
 
 		return array(
 			'db_user' => array(
