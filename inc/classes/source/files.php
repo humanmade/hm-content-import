@@ -2,8 +2,6 @@
 
 namespace HMCI\Source;
 
-use Aws\CloudFront\Exception\Exception;
-
 trait Files {
 
 	public function get_items( $offset, $count ) {
@@ -51,7 +49,7 @@ trait Files {
 		}
 
 		if ( ! $path_found ) {
-			throw new Exception( __( sprintf( 'Path not found. Attempted paths: %s', implode( ', ', $check_paths ) ), 'hmci' ), 'hmci_export_path_not_found' );
+			throw new \Exception( __( sprintf( 'Path not found. Attempted paths: %s', implode( ', ', $check_paths ) ), 'hmci' ), 'hmci_export_path_not_found' );
 		}
 
 		if ( is_dir( $path_found ) ) {
