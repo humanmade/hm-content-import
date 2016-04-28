@@ -9,6 +9,7 @@ abstract class Base implements Interfaces\Base {
 
 	var $debugger = false;
 	var $output   = array();
+	var $args     = array();
 
 	public function __construct( $args = array() ) {
 
