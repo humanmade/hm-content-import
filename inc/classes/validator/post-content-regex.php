@@ -8,16 +8,6 @@ class Post_Content_Regex extends Base {
 
 	use Source\Posts;
 
-	public function __construct( $args = array()  ) {
-
-		$args = wp_parse_args( $args, array(
-			'delimiter'       => '~',
-			'match_index'     => 0,
-		) );
-
-		parent::__construct( $args );
-	}
-
 	protected function verify_args() {
 
 		if ( empty( $this->args['regex'] ) ) {
