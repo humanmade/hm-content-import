@@ -4,8 +4,6 @@ namespace HMCI\Source;
 
 trait Base {
 
-	var $args     = array();
-
 	public function get_count() {
 
 		$offset = 0;
