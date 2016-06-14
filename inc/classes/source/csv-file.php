@@ -1,10 +1,10 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Source;
 
-abstract class CSV_File extends File {
+trait CSV_File {
 
-	use File_Trait;
+	use File;
 
 	public function get_items( $offset, $count ) {
 
@@ -29,7 +29,6 @@ abstract class CSV_File extends File {
 	}
 
 	protected function get_file_contents( $file ) {
-
 
 		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
 			return array();
@@ -56,8 +55,13 @@ abstract class CSV_File extends File {
 		return $data;
 	}
 
-	public function get_items_from_content( $contents ) {
-		return $contents;
-	}
+	protected function filter_files( $files ) {
 
+		return array_filter( $files, function( $filename ) {
+
+			return strtoupper( substr( $filename, -4 ) ) === '.CSV';
+
+		} );
+	}
+	
 }

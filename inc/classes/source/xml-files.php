@@ -1,8 +1,10 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Source;
 
-abstract class XML_Files extends Files {
+trait XML_Files {
+
+	use Files;
 
 	public function parse_item( $item ) {
 

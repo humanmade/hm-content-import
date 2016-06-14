@@ -4,8 +4,51 @@ namespace HMCI\CLI;
 
 use HMCI\Master;
 
+/**
+ * Custon WP_CLI Command for HMCI
+ *
+ * Allows triggering of registered import/validation scripts
+ *
+ * Class HMCI
+ * @package HMCI\CLI
+ */
 class HMCI extends \WP_CLI_Command {
 
+	/**
+	 *
+	 * Run a registered import script
+	 *
+	 * ## OPTIONS
+	 *
+	 * <importer-id>
+	 * : ID of the import script to be executed
+	 *
+	 * [--count]
+	 * : Maximum number of items to be imported on execution
+	 *
+	 * [--offset]
+	 * : Offset to begin importing at
+	 *
+	 * [--resume]
+	 * : Attempt to resume script (if there was a failure during last execution)
+	 *
+	 * [--verbose]
+	 * : Output logging data to the terminal during script execution
+	 *
+	 * [--disable_global_terms]
+	 * : For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import
+	 *
+	 * [--disable_trackbacks]
+	 * : Helps prevent cron and memory leak issues
+	 *
+	 * [--disable_intermediate_images]
+	 * : Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)
+	 *
+	 * [--define_wp_importing]
+	 * : Define the WP_IMPORTING constant
+	 *
+	 * @subcommand import
+	 */
 	public function import( $args, $args_assoc ) {
 
 		$args_assoc = wp_parse_args( $args_assoc, array(
@@ -19,7 +62,7 @@ class HMCI extends \WP_CLI_Command {
 			'define_wp_importing'         => true,
 		) );
 
-		$this->manage_disables( $args_assoc );
+		$this->manage_global_settings( $args_assoc );
 
 		$import_type = $args[0];
 		$importer    = $this->get_importer( $import_type, $args_assoc );
@@ -39,7 +82,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items-per-loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
 
 			$importer->import_items( $items );
 			$current_offset += count( $items );
@@ -53,6 +96,29 @@ class HMCI extends \WP_CLI_Command {
 		$progress->finish();
 	}
 
+	/**
+	 *
+	 * Run a registered validation script
+	 *
+	 * ## OPTIONS
+	 *
+	 * <validator-id>
+	 * : ID of the validator script to be executed
+	 *
+	 * [--count]
+	 * : Maximum number of items to be validated on execution
+	 *
+	 * [--offset]
+	 * : Offset to begin validating at
+	 *
+	 * [--resume]
+	 * : Attempt to resume script (if there was a failure during last execution)
+	 *
+	 * [--verbose]
+	 * : Output logging data to the terminal during script execution
+	 *
+	 * @subcommand validate
+	 */
 	public function validate( $args, $args_assoc ) {
 
 		$args_assoc = wp_parse_args( $args_assoc, array(
@@ -84,7 +150,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items-per-loop'] ) ) {
+		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
 
 			$validator->validate_items( $items );
 			$current_offset += count( $items );
@@ -101,9 +167,13 @@ class HMCI extends \WP_CLI_Command {
 
 	}
 
+	/**
+	 * Custom help command to list importers/validators and their associated args
+	 *
+	 */
 	public function help() {
 
-		$this->debug( "AVAILABLE IMPORTERS (hmci import)" );
+		$this->debug( "\r\nAVAILABLE IMPORTERS (hmci import)" );
 
 		foreach( Master::get_importers() as $impoter_key => $importer ) {
 
@@ -113,7 +183,32 @@ class HMCI extends \WP_CLI_Command {
 
 			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
 
-			$args = call_user_func( array( $importer, 'get_all_arg_definitions' ) );
+			$args = call_user_func( array( $importer, 'get_args' ) );
+
+			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+
+			foreach( $args as $arg => $data ) {
+
+				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+
+				foreach( $data as $data_key => $data_val ) {
+
+					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+				}
+			}
+		}
+
+		$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
+
+		foreach( Master::get_validators() as $impoter_key => $importer ) {
+
+			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
+
+			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+
+			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+
+			$args = call_user_func( array( $importer, 'get_args' ) );
 
 			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
 
@@ -129,47 +224,13 @@ class HMCI extends \WP_CLI_Command {
 		}
 	}
 
-	function pad_string( $string, $chars  = 15 ) {
-
-		while( strlen( $string ) < $chars ) {
-			$string .= ' ';
-		}
-
-		return $string;
-	}
-
-	function get_tabs( $tabs = 0 ) {
-
-		$single_tab = '    ';
-		$string     = '';
-
-		for( $i=0; $i<$tabs; $i++ ) {
-
-			$string .= $single_tab;
-		}
-
-		return $string;
-	}
-
-	protected function get_validator( $validator_type, $args ) {
-
-		if ( $args['verbose'] ) {
-			$args['debugger'] = array( $this, 'debug' );
-		}
-
-		$validator = Master::get_validator_instance( $validator_type, $args );
-
-		if ( ! $validator ) {
-			$this->debug( $validator_type . ' Is not a valid validator type', true );
-		}
-
-		if ( is_wp_error( $validator ) ) {
-			$this->debug( $validator, true );
-		}
-
-		return $validator;
-	}
-
+	/**
+	 * Get an importer instance
+	 *
+	 * @param $import_type
+	 * @param $args
+	 * @return bool|\HMCI\Importer\Base|\WP_Error
+	 */
 	protected function get_importer( $import_type, $args ) {
 
 		if ( $args['verbose'] ) {
@@ -189,6 +250,38 @@ class HMCI extends \WP_CLI_Command {
 		return $importer;
 	}
 
+	/**
+	 * Get a validator instance
+	 *
+	 * @param $validator_type
+	 * @param $args
+	 * @return bool|\HMCI\Validator\Base|\WP_Error
+	 */
+	protected function get_validator( $validator_type, $args ) {
+
+		if ( $args['verbose'] ) {
+			$args['debugger'] = array( $this, 'debug' );
+		}
+
+		$validator = Master::get_validator_instance( $validator_type, $args );
+
+		if ( ! $validator ) {
+			$this->debug( $validator_type . ' Is not a valid validator type', true );
+		}
+
+		if ( is_wp_error( $validator ) ) {
+			$this->debug( $validator, true );
+		}
+
+		return $validator;
+	}
+
+	/**
+	 * CLI Debug
+	 *
+	 * @param $output
+	 * @param bool $exit_on_output
+	 */
 	public static function debug( $output, $exit_on_output = false ) {
 
 		if ( is_wp_error( $output ) ) {
@@ -215,21 +308,45 @@ class HMCI extends \WP_CLI_Command {
 		}
 	}
 
-	protected function clear_progress( $type, $name ) {
-
-		delete_option( 'hmci_pg_' . md5( $type . '~' . $name ) );
-	}
-
+	/**
+	 * Save progress of a given script
+	 *
+	 * @param $type
+	 * @param $name
+	 * @param $count
+	 */
 	protected function save_progress( $type, $name, $count ) {
 
 		update_option( 'hmci_pg_' . md5( $type . '~' . $name ), $count );
 	}
 
+	/**
+	 * Clear saved progress of a given script
+	 *
+	 * @param $type
+	 * @param $name
+	 */
+	protected function clear_progress( $type, $name ) {
+
+		delete_option( 'hmci_pg_' . md5( $type . '~' . $name ) );
+	}
+
+	/**
+	 * Get progress of a given script
+	 *
+	 * @param $type
+	 * @param $name
+	 * @return int
+	 */
 	protected function get_progress( $type, $name ) {
 
 		return absint( get_option( 'hmci_pg_' . md5( $type . '~' . $name ), 0 ) );
 	}
 
+	/**
+	 * Clear local object cache (helps prevent memory leaks)
+	 *
+	 */
 	protected function clear_local_object_cache() {
 
 		global $wpdb, $wp_object_cache;
@@ -251,7 +368,12 @@ class HMCI extends \WP_CLI_Command {
 
 	}
 
-	protected function manage_disables( $args ) {
+	/**
+	 * Manages global settings defined when an import script is being run
+	 *
+	 * @param $args
+	 */
+	protected function manage_global_settings( $args ) {
 
 		if ( ! empty( $args['disable_global_terms'] ) ) {
 			$this->disable_global_terms();
@@ -270,6 +392,10 @@ class HMCI extends \WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Disable global terms
+	 *
+	 */
 	protected function disable_global_terms() {
 
 		if ( ! empty( $this->global_terms_disabled ) ) {
@@ -280,6 +406,10 @@ class HMCI extends \WP_CLI_Command {
 		$this->global_terms_disabled = true;
 	}
 
+	/**
+	 * Disable trackbacks
+	 *
+	 */
 	protected function disable_trackbacks() {
 
 		if ( ! empty( $this->trackbacks_disabled ) ) {
@@ -297,6 +427,10 @@ class HMCI extends \WP_CLI_Command {
 		$this->trackbacks_disabled = true;
 	}
 
+	/**
+	 * Disable intermediate image sizes
+	 *
+	 */
 	protected function disable_intermediate_images() {
 
 		add_filter( 'intermediate_image_sizes_advanced', function( $sizes, $metadata ) {
@@ -305,5 +439,40 @@ class HMCI extends \WP_CLI_Command {
 
 		}, 10, 2 );
 
+	}
+
+	/**
+	 * Pad a string with spaces (for help function)
+	 *
+	 * @param $string
+	 * @param int $chars
+	 * @return string
+	 */
+	protected function pad_string( $string, $chars  = 15 ) {
+
+		while( strlen( $string ) < $chars ) {
+			$string .= ' ';
+		}
+
+		return $string;
+	}
+
+	/**
+	 * A set of 4 space tabs as a string (for help function)
+	 *
+	 * @param int $tabs
+	 * @return string
+	 */
+	protected function get_tabs( $tabs = 0 ) {
+
+		$single_tab = '    ';
+		$string     = '';
+
+		for( $i=0; $i<$tabs; $i++ ) {
+
+			$string .= $single_tab;
+		}
+
+		return $string;
 	}
 }

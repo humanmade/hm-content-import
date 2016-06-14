@@ -2,17 +2,11 @@
 
 namespace HMCI\Validator;
 
-class Post_Content_Regex extends Post {
+use HMCI\Source;
 
-	public function __construct( $args = array()  ) {
+class Post_Content_Regex extends Base {
 
-		$args = wp_parse_args( $args, array(
-			'delimiter'       => '~',
-			'match_index'     => 0,
-		) );
-
-		parent::__construct( $args );
-	}
+	use Source\Posts;
 
 	protected function verify_args() {
 
@@ -36,6 +30,32 @@ class Post_Content_Regex extends Post {
 		}
 
 		return array( $item->ID, implode( ', ', ( (array) $matches[ $match_index ] ) ) );
+	}
+
+	public static function get_validator_args() {
+
+		return array(
+			'regex' => array(
+				'required'      => true,
+				'type'          => 'string',
+				'description'   => __( 'Regex pattern to be used', 'hmci' )
+			),
+			'delimiter' => array(
+				'default'       => '~',
+				'type'          => 'string',
+				'description'   => __( 'Regex delimiter', 'hmci' )
+			),
+			'match_index' => array(
+				'default'       => 0,
+				'type'          => 'numeric',
+				'description'   => __( 'Regex match index', 'hmci' )
+			),
+		);
+	}
+
+	public static function get_description() {
+
+		return __( 'Post content regex validator, pass in regex to match validation failure triggers.', 'hmci' );
 	}
 
 }

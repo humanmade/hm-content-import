@@ -1,24 +1,10 @@
 <?php
 
-// todo:: implement regex replacer with definable regex then callback with received data and expects replacement
-// todo:: implement abstraction for replacing attachment urls -> should supply new url to callback along with any type data available, then replace.
+namespace HMCI\Source;
 
-namespace HMCI\Importer;
+trait Posts {
 
-abstract class Post_Content extends Base {
-
-	var $args     = array();
-	var $debugger = false;
-
-	protected function insert_item( $item ) {
-
-		$post_content = $this->parse_post_content( $item->post_content, $item );
-
-		wp_update_post( array(
-			'ID'            => $item->ID,
-			'post_content'  => $post_content,
-		) );
-	}
+	use Base;
 
 	public function get_items( $offset, $count ) {
 
@@ -57,7 +43,7 @@ abstract class Post_Content extends Base {
 		return $args;
 	}
 
-	public static function get_arg_definitions() {
+	public static function get_source_args() {
 
 		return array(
 			'post_type' => array(
@@ -75,6 +61,4 @@ abstract class Post_Content extends Base {
 			),
 		);
 	}
-
-	abstract protected function parse_post_content( $post_content, $post );
 }

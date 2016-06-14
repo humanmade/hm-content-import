@@ -1,9 +1,22 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination\WP;
 
+/**
+ * WordPress term destination - manages inserting terms
+ *
+ * @package HMCI\Destination\WP
+ */
 class Term extends Base {
 
+	/**
+	 * @param $term
+	 * @param $taxonomy
+	 * @param bool $canonical_id
+	 * @param array $args
+	 * @param array $term_meta
+	 * @return array|bool|int|null|string|\WP_Error|\WP_Term
+	 */
 	static function insert( $term, $taxonomy, $canonical_id = false, $args = array(), $term_meta = array() ) {
 
 		// Got term by canonical ID marker
@@ -51,6 +64,10 @@ class Term extends Base {
 		return $term_id;
 	}
 
+	/**
+	 * @param $post_id
+	 * @param $meta_data
+	 */
 	static function set_meta( $post_id, $meta_data ) {
 
 		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
@@ -68,11 +85,21 @@ class Term extends Base {
 
 	}
 
+	/**
+	 * @param $canonical_id
+	 * @param null $taxonomy
+	 * @return bool
+	 */
 	static function exists( $canonical_id, $taxonomy = null ) {
 
 		return (bool) static::get_id_from_canonical_id( $canonical_id, $taxonomy );
 	}
 
+	/**
+	 * @param $canonical_id
+	 * @param null $taxonomy
+	 * @return bool|null|string
+	 */
 	static function get_id_from_canonical_id( $canonical_id, $taxonomy = null ) {
 
 		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
@@ -84,6 +111,11 @@ class Term extends Base {
 		return $wpdb->get_var( $wpdb->prepare( "SELECT term_id FROM $wpdb->termmeta WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key_suffixed( $taxonomy ), $canonical_id ) );
 	}
 
+	/**
+	 * @param $id
+	 * @param $canonical_id
+	 * @param null $taxonomy
+	 */
 	static function set_canonical_id( $id, $canonical_id, $taxonomy = null ) {
 
 		if ( ! $canonical_id || ! ! is_callable( 'update_term_meta' ) ) {
@@ -93,6 +125,10 @@ class Term extends Base {
 		update_term_meta( $id, static::get_canonical_id_key_suffixed( $taxonomy ), $canonical_id );
 	}
 
+	/**
+	 * @param null $taxonomy
+	 * @return mixed|string|void
+	 */
 	static function get_canonical_id_key_suffixed( $taxonomy = null ) {
 
 		return ( $taxonomy ) ? static::get_canonical_id_key() . '_' . $taxonomy :  static::get_canonical_id_key();

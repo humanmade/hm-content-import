@@ -1,9 +1,20 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination\WP;
 
+/**
+ * co-authors-plus guest author destination class. Used for importing guest-author objects
+ *
+ * @package HMCI\Destination\WP
+ */
 class Guest_Author extends Post {
 
+	/**
+	 * @param array $user_data
+	 * @param bool $canonical_id
+	 * @param array $author_meta
+	 * @return null|string|\WP_Error
+	 */
 	static function insert( $user_data = array(), $canonical_id = false, $author_meta = array() ) {
 
 		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' ) ) {
@@ -37,6 +48,11 @@ class Guest_Author extends Post {
 		return $post_id;
 	}
 
+	/**
+	 * @param $field
+	 * @param $value
+	 * @return bool|int
+	 */
 	static function get_id_by( $field, $value ) {
 
 		$user = static::get_object_by( $field, $value );
@@ -44,6 +60,11 @@ class Guest_Author extends Post {
 		return ! empty( $user['ID'] ) ? absint( $user['ID'] ) : false;
 	}
 
+	/**
+	 * @param $user_field
+	 * @param $user_value
+	 * @return mixed
+	 */
 	static function get_object_by( $user_field, $user_value ) {
 
 		global $coauthors_plus;
@@ -53,6 +74,12 @@ class Guest_Author extends Post {
 		return $user;
 	}
 
+	/**
+	 * @param $user_field
+	 * @param $user_values
+	 * @param $post_id
+	 * @return bool
+	 */
 	static function set_authors_for_post( $user_field, $user_values, $post_id ) {
 
 		if ( ! is_array ( $user_values ) ) {

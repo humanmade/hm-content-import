@@ -1,8 +1,10 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Source;
 
-abstract class JSON_Files extends Files {
+trait JSON_Files {
+
+	use Files;
 
 	public function parse_item( $item ) {
 

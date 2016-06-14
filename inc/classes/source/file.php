@@ -1,10 +1,10 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Source;
 
-abstract class File extends Base {
+trait File {
 
-	use File_Trait;
+	use Files;
 
 	public function get_items( $offset, $count ) {
 
@@ -27,10 +27,7 @@ abstract class File extends Base {
 		return $items;
 	}
 
-	protected function get_file_contents( $file ) {
-
-		return file_get_contents( $file );
+	public function get_items_from_content( $file ) {
+		return $file;
 	}
-
-	abstract function get_items_from_content( $file );
 }

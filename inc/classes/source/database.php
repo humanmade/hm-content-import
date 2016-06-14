@@ -1,14 +1,16 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Source;
 
-abstract class Database extends Base {
+trait Database {
+
+	use Base;
 
 	var $database_connection = false;
 
 	public function __construct( $args = array() ) {
 
-		parent::__construct( $args );
+		Base::__construct( $args );
 
 		$this->set_db();
 	}
@@ -22,7 +24,7 @@ abstract class Database extends Base {
 		$this->database_connection = new \wpdb( $this->args['db_user'], $this->args['db_pass'], $this->args['db_name'], $this->args['db_host'] );
 	}
 
-	public static function get_arg_definitions() {
+	public static function get_source_args() {
 
 		return array(
 			'db_user' => array(

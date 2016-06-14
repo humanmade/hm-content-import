@@ -1,9 +1,24 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Destination\WP;
 
+/**
+ *
+ * WordPress attachment destination - manages inserting attachments from url/path, post and meta data
+ *
+ * @package HMCI\Destination\WP
+ */
 class Attachment extends Post {
 
+	/**
+	 * @param array $path
+	 * @param array $post_data
+	 * @param bool $canonical_id
+	 * @param array $post_meta
+	 * @param null $file_type_override
+	 * @param bool $force_update_existing
+	 * @return array|int|object|\WP_Error
+	 */
 	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
@@ -62,6 +77,9 @@ class Attachment extends Post {
 		return $post_id;
 	}
 
+	/**
+	 * Ensure files required for managing media uploads are included
+	 */
 	protected static function require_dependencies() {
 
 		require_once( ABSPATH . '/wp-admin/includes/file.php' );
@@ -69,6 +87,12 @@ class Attachment extends Post {
 		require_once( ABSPATH . '/wp-admin/includes/image.php' );
 	}
 
+	/**
+	 * @param $path
+	 * @param $is_url
+	 * @param null $file_type_override
+	 * @return array
+	 */
 	protected static function prepare_file( $path, $is_url, $file_type_override = null ) {
 
 		$file_array = array();
@@ -117,31 +141,55 @@ class Attachment extends Post {
 		return $file_array;
 	}
 
+	/**
+	 * @param $file_array
+	 */
 	protected static function cleanup_file( $file_array ) {
 
 		@unlink( $file_array['tmp_name'] );
 	}
 
+	/**
+	 * @param $canonical_id
+	 * @return bool
+	 */
 	static function exists( $canonical_id ) {
 
 		return (bool) static::get_id_from_canonical_id( $canonical_id );
 	}
 
+	/**
+	 * @param $canonical_id
+	 * @return null|string
+	 */
 	static function get_id_from_canonical_id( $canonical_id  ) {
 
 		return parent::get_id_from_canonical_id( $canonical_id, 'attachment' );
 	}
 
+	/**
+	 * @param $id
+	 * @param $canonical_id
+	 */
 	static function set_canonical_id( $id, $canonical_id ) {
 
 		parent::set_canonical_id( $id, $canonical_id, 'attachment' );
 	}
 
+	/**
+	 * @param $id
+	 * @param $import_path
+	 */
 	static function set_import_path_meta( $id, $import_path ) {
 
 		update_post_meta( $id, 'hmci_import_path', $import_path );
 	}
 
+	/**
+	 * @param $url
+	 * @param int $timeout
+	 * @return array|bool|object|string|\WP_Error
+	 */
 	static function download_url( $url, $timeout = 300 ) {
 
 		//WARNING: The file is not automatically deleted, The script must unlink() the file.
