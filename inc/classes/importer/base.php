@@ -2,9 +2,7 @@
 
 namespace HMCI\Importer;
 
-use HMCI\Importer\Interfaces;
-
-abstract class Base implements Interfaces\Base {
+abstract class Base implements Base_Interface {
 
 	var $debugger = false;
 	var $args     = array();

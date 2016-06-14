@@ -54,4 +54,14 @@ trait CSV_File {
 
 		return $data;
 	}
+
+	protected function filter_files( $files ) {
+
+		return array_filter( $files, function( $filename ) {
+
+			return strtoupper( substr( $filename, -4 ) ) === '.CSV';
+
+		} );
+	}
+	
 }

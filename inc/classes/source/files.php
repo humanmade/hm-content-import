@@ -79,5 +79,10 @@ trait Files {
 		);
 	}
 
+	public function parse_item( $item ) {
+
+		return $item;
+	}
+
 	abstract protected function filter_files( $files );
 }

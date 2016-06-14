@@ -5,7 +5,7 @@ namespace HMCI\Validator;
 use HMCI\Validator\Interfaces;
 use HMCI\Source;
 
-abstract class Base implements Interfaces\Base {
+abstract class Base implements Base_Interface {
 
 	var $debugger = false;
 	var $output   = array();

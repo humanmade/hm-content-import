@@ -2,6 +2,9 @@
 
 namespace HMCI\Destination\WP;
 
-abstract class Base extends \HMCI\Destination\Base {
-
-}
+/**
+ * Base WP Destination class
+ *
+ * @package HMCI\Destination\WP
+ */
+abstract class Base extends \HMCI\Destination\Base {}

@@ -21,14 +21,14 @@ require_once( __DIR__ . '/inc/classes/source/json-files.php' );
 require_once( __DIR__ . '/inc/classes/source/csv-file.php' );
 require_once( __DIR__ . '/inc/classes/source/xml-files.php' );
 
-require_once( __DIR__ . '/inc/classes/importer/interfaces/base.php' );
+require_once( __DIR__ . '/inc/classes/importer/base-interface.php' );
 require_once( __DIR__ . '/inc/classes/importer/base.php' );
 
-require_once( __DIR__ . '/inc/classes/validator/interfaces/base.php' );
+require_once( __DIR__ . '/inc/classes/validator/base-interface.php' );
 require_once( __DIR__ . '/inc/classes/validator/base.php' );
 require_once( __DIR__ . '/inc/classes/validator/post-content-regex.php' );
 
-require_once( __DIR__ . '/inc/classes/destination/interfaces/base.php' );
+require_once( __DIR__ . '/inc/classes/destination/base-interface.php' );
 require_once( __DIR__ . '/inc/classes/destination/base.php' );
 require_once( __DIR__ . '/inc/classes/destination/wp/base.php' );
 require_once( __DIR__ . '/inc/classes/destination/wp/post.php' );
@@ -39,10 +39,12 @@ require_once( __DIR__ . '/inc/classes/destination/wp/term.php' );
 
 require_once( __DIR__ . '/inc/classes/master.php' );
 
+// Only incude CLI command file if WP_CLI is defined
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( __DIR__ . '/inc/classes/cli/hmci.php' );
 }
 
+// Initialise the master instance
 add_action( 'init', function() {
 	Master::get_instance();
 } );
