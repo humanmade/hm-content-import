@@ -1,9 +1,25 @@
 <?php
 
-namespace HMCI\Source;
+namespace HMCI\Iterator\Files;
 
-trait Files {
+/**
+ * Base Files iterator class
+ *
+ * Iterates over provided files for processing
+ *
+ * Class Base
+ * @package HMCI\Iterator\Files
+ */
+abstract class Base extends \HMCI\Iterator\Base {
 
+	/**
+	 * Get contents from files (paged)
+	 *
+	 * @param $offset
+	 * @param $count
+	 * @return array
+	 * @throws \Exception
+	 */
 	public function get_items( $offset, $count ) {
 
 		$files       = $this->filter_files( $this->get_files_in_path() );
@@ -23,6 +39,12 @@ trait Files {
 		return $items;
 	}
 
+	/**
+	 * Get item count (number of files)
+	 *
+	 * @return array|int
+	 * @throws \Exception
+	 */
 	public function get_count() {
 
 		$files_in_path = $this->get_files_in_path();
@@ -30,11 +52,23 @@ trait Files {
 		return is_wp_error( $files_in_path ) ? $files_in_path : count( $files_in_path );
 	}
 
+	/**
+	 * Get contents for a file
+	 *
+	 * @param $file
+	 * @return string
+	 */
 	protected function get_file_contents( $file ) {
 
 		return file_get_contents( $file );
 	}
 
+	/**
+	 * Get files in a provided path
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
 	protected function get_files_in_path() {
 
 		$path        = $this->args['export_path'];
@@ -68,7 +102,12 @@ trait Files {
 		return $files;
 	}
 
-	public static function get_source_args() {
+	/**
+	 * Get iterator argument definitions
+	 *
+	 * @return array
+	 */
+	public static function get_iterator_args() {
 
 		return array(
 			'export_path' => array(
@@ -79,10 +118,22 @@ trait Files {
 		);
 	}
 
+	/**
+	 * Parse file contents
+	 *
+	 * @param $item
+	 * @return mixed
+	 */
 	public function parse_item( $item ) {
 
 		return $item;
 	}
 
+	/**
+	 * Filter files
+	 *
+	 * @param $files
+	 * @return mixed
+	 */
 	abstract protected function filter_files( $files );
 }

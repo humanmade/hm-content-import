@@ -79,7 +79,7 @@ class Master {
 	 * Get an importer instance from it's ID
 	 *
 	 * @param $key
-	 * @return bool | \WP_Error | Importer\Base
+	 * @return bool | \WP_Error | Iterator\Base
 	 */
 	public static function get_importer_instance( $key, $args = array() ) {
 
@@ -129,7 +129,7 @@ class Master {
 	 * Get a validator instance from it's ID
 	 *
 	 * @param $key
-	 * @return bool | \WP_Error | Validator\Base
+	 * @return bool | \WP_Error | Iterator\Base
 	 */
 	public static function get_validator_instance( $key, $args = array() ) {
 

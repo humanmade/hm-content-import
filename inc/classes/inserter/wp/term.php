@@ -1,15 +1,17 @@
 <?php
 
-namespace HMCI\Destination\WP;
+namespace HMCI\Inserter\WP;
 
 /**
- * WordPress term destination - manages inserting terms
+ * WordPress term inserter - manages inserting terms
  *
- * @package HMCI\Destination\WP
+ * @package HMCI\Inserter\WP
  */
 class Term extends Base {
 
 	/**
+	 * Add a term object to the database
+	 *
 	 * @param $term
 	 * @param $taxonomy
 	 * @param bool $canonical_id
@@ -65,6 +67,8 @@ class Term extends Base {
 	}
 
 	/**
+	 * Set term meta
+	 *
 	 * @param $post_id
 	 * @param $meta_data
 	 */
@@ -86,6 +90,8 @@ class Term extends Base {
 	}
 
 	/**
+	 * Check if term exists for provided canonical ID
+	 *
 	 * @param $canonical_id
 	 * @param null $taxonomy
 	 * @return bool
@@ -96,6 +102,8 @@ class Term extends Base {
 	}
 
 	/**
+	 * Get term ID from canonical ID
+	 *
 	 * @param $canonical_id
 	 * @param null $taxonomy
 	 * @return bool|null|string
@@ -112,6 +120,8 @@ class Term extends Base {
 	}
 
 	/**
+	 * Set term canonical ID
+	 *
 	 * @param $id
 	 * @param $canonical_id
 	 * @param null $taxonomy
@@ -126,6 +136,8 @@ class Term extends Base {
 	}
 
 	/**
+	 * Get canonical ID meta key
+	 *
 	 * @param null $taxonomy
 	 * @return mixed|string|void
 	 */

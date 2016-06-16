@@ -1,15 +1,17 @@
 <?php
 
-namespace HMCI\Destination\WP;
+namespace HMCI\Inserter\WP;
 
 /**
- * WordPress user destination - manages inserting users from user_data and meta_data
+ * WordPress user inserter - manages inserting users from user_data and meta_data
  *
- * @package HMCI\Destination\WP
+ * @package HMCI\Inserter\WP
  */
 class User extends Base {
 
 	/**
+	 * Insert a user object into the database
+	 *
 	 * @param $user_data
 	 * @param bool $canonical_id
 	 * @param array $user_meta
@@ -39,6 +41,8 @@ class User extends Base {
 	}
 
 	/**
+	 * Set user meta
+	 *
 	 * @param $user_id
 	 * @param $meta_data
 	 */
@@ -56,6 +60,9 @@ class User extends Base {
 	}
 
 	/**
+	 * Get user ID from canonical ID
+	 *
+	 *
 	 * @param $canonical_id
 	 * @return null|string
 	 */
@@ -67,6 +74,8 @@ class User extends Base {
 	}
 
 	/**
+	 * Get user ID from email address
+	 *
 	 * @param $email
 	 * @return null|string
 	 */
@@ -78,6 +87,8 @@ class User extends Base {
 	}
 
 	/**
+	 * Get user ID from login
+	 *
 	 * @param $login
 	 * @return null|string
 	 */
@@ -89,6 +100,8 @@ class User extends Base {
 	}
 
 	/**
+	 * Set user canonical ID
+	 *
 	 * @param $id
 	 * @param $canonical_id
 	 */

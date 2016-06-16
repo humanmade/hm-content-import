@@ -1,12 +1,34 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Iterator;
 
+/**
+ * Base  iterator class
+ * Iterates over provided objects for processing
+ *
+ * Class Base
+ * @package HMCI\Iterator
+ */
 abstract class Base implements Base_Interface {
 
+	/**
+	 * Debug callback
+	 *
+	 * @var bool
+	 */
 	var $debugger = false;
+
+	/**
+	 * Class instance arguments
+	 *
+	 * @var array
+	 */
 	var $args     = array();
 
+	/**
+	 * @param array $args
+	 * @throws \Exception
+	 */
 	public function __construct( $args = array() ) {
 
 		$verified = $this->parse_args( $args );
@@ -16,13 +38,16 @@ abstract class Base implements Base_Interface {
 		}
 	}
 
-	public function import_all() {
+	/**
+	 * Iterate over all items
+	 */
+	public function iterate_all() {
 
 		$offset = 0;
 
 		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
 
-			$this->import_items( $items );
+			$this->iterate_items( $items );
 			$offset += count( $items );
 
 			if ( $this->args['auto_clear_cache'] ) {
@@ -31,11 +56,16 @@ abstract class Base implements Base_Interface {
 		}
 	}
 
-	public function import_items( $items ) {
+	/**
+	 * Iterate over provided items
+	 *
+	 * @param $items
+	 */
+	public function iterate_items( $items ) {
 
 		foreach ( $items as $item ) {
 
-			$r = $this->import_item( $item );
+			$r = $this->iterate_item( $item );
 
 			if ( is_wp_error( $r ) ) {
 				$this->debug( $r );
@@ -43,7 +73,13 @@ abstract class Base implements Base_Interface {
 		}
 	}
 
-	public function import_item( $item ) {
+	/**
+	 * Iterate over a single provided item
+	 *
+	 * @param $item
+	 * @return bool
+	 */
+	public function iterate_item( $item ) {
 
 		$item   = $this->parse_item( $item );
 
@@ -51,7 +87,7 @@ abstract class Base implements Base_Interface {
 			return false;
 		}
 
-		$id     = $this->insert_item( $item );
+		$id     = $this->process_item( $item );
 
 		if ( is_wp_error( $id ) ) {
 			$this->debug( $id );
@@ -60,6 +96,11 @@ abstract class Base implements Base_Interface {
 		return $id;
 	}
 
+	/**
+	 * Output a debug string
+	 *
+	 * @param $output
+	 */
 	protected function debug( $output ) {
 
 		if ( empty( $this->args['verbose'] ) ) {
@@ -71,6 +112,9 @@ abstract class Base implements Base_Interface {
 		}
 	}
 
+	/**
+	 * Clear local cache (helps vs memory leaks if object caching is enabled)
+	 */
 	protected function clear_cache() {
 
 		global $wpdb, $wp_object_cache;
@@ -92,6 +136,12 @@ abstract class Base implements Base_Interface {
 
 	}
 
+	/**
+	 * Parse and validate instance arguments
+	 *
+	 * @param $args
+	 * @return bool|\WP_Error
+	 */
 	protected function parse_args( $args ) {
 
 		$this->args = $args;
@@ -115,13 +165,18 @@ abstract class Base implements Base_Interface {
 
 			// Arg type is numeric but non-numeric value passed
 			if ( ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
-				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
+				return new \WP_Error( 'hmci_invalid_arg_type', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
 			}
 		}
 
 		return true;
 	}
 
+	/**
+	 * Compile instance arguments
+	 *
+	 * @return array
+	 */
 	public static function get_args() {
 
 		$global_args = array(
@@ -142,13 +197,71 @@ abstract class Base implements Base_Interface {
 			),
 		);
 
-		return array_merge( static::get_source_args(), static::get_importer_args(), $global_args );
+		return array_merge( $global_args, static::get_iterator_args(), static::get_custom_args() );
 	}
 
-	public static function get_importer_args() {
+	/**
+	 * Parse an item being iterated over
+	 *
+	 * @param $item
+	 * @return mixed
+	 */
+	protected function parse_item( $item ) {
+		return $item;
+	}
+
+	/**
+	 * Get custom arguments of class extension
+	 *
+	 * @return array
+	 */
+	public static function get_custom_args() {
 
 		return array();
 	}
 
-	abstract protected function insert_item( $item );
+	/**
+	 * Get arguments of iterator type
+	 *
+	 * @return array
+	 */
+	public static function get_iterator_args() {
+
+		return array();
+	}
+
+	/**
+	 * Get number of items to be iterated over
+	 *
+	 * @return int
+	 */
+	public function get_count() {
+
+		$offset = 0;
+
+		while ( $items = $this->get_items( $offset, $this->args['items_per_loop'] ) ) {
+			$offset += count( $items );
+		}
+
+		return $offset;
+	}
+
+	/**
+	 * Get items (paged)
+	 *
+	 * @param $offset
+	 * @param $count
+	 * @return mixed
+	 */
+	abstract function get_items( $offset, $count );
+
+	/**
+	 * Process a single item
+	 *
+	 * This function is to be defined for specific implementer requirements
+	 *
+	 * @param $item
+	 * @return mixed
+	 */
+	abstract protected function process_item( $item );
 }

@@ -1,13 +1,26 @@
 <?php
 
-namespace HMCI\Source;
+namespace HMCI\Iterator\DB;
 
-trait Database {
+/**
+ * Base Database iterator class
+ *
+ * Iterates over provided database data for processing
+ *
+ * Class Base
+ *
+ * @package HMCI\Iterator\DB
+ */
+abstract class Base extends \HMCI\Iterator\Base {
 
-	use Base;
-
+	/**
+	 * @var bool
+	 */
 	var $database_connection = false;
 
+	/**
+	 * @param array $args
+	 */
 	public function __construct( $args = array() ) {
 
 		Base::__construct( $args );
@@ -15,16 +28,29 @@ trait Database {
 		$this->set_db();
 	}
 
+	/**
+	 * Get database class instance
+	 *
+	 * @return bool
+	 */
 	public function db() {
 		return $this->database_connection;
 	}
 
+	/**
+	 * Set database class instance
+	 */
 	public function set_db() {
 
 		$this->database_connection = new \wpdb( $this->args['db_user'], $this->args['db_pass'], $this->args['db_name'], $this->args['db_host'] );
 	}
 
-	public static function get_source_args() {
+	/**
+	 * Get iterator argument definitions
+	 *
+	 * @return array
+	 */
+	public static function get_iterator_args() {
 
 		return array(
 			'db_user' => array(
