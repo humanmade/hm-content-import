@@ -39,6 +39,7 @@ require_once( __DIR__ . '/inc/classes/inserter/wp/user.php' );
 require_once( __DIR__ . '/inc/classes/inserter/wp/guest-author.php' );
 require_once( __DIR__ . '/inc/classes/inserter/wp/attachment.php' );
 require_once( __DIR__ . '/inc/classes/inserter/wp/term.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/comment.php' );
 
 require_once( __DIR__ . '/inc/classes/master.php' );
 
