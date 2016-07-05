@@ -76,3 +76,4 @@ abstract class Base extends \HMCI\Iterator\Base {
 		);
 	}
 }
+

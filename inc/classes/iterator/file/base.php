@@ -32,14 +32,8 @@ abstract class Base extends \HMCI\Iterator\Files\Base {
 		$items_raw   = $this->get_items_from_content( $contents );
 
 		$items_paged = array_slice( $items_raw, $offset, $count );
-		$items       = array();
 
-		foreach ( $items_paged as $item_raw ) {
-
-			$items[] = $this->parse_item( $item_raw );
-		}
-
-		return $items;
+		return $items_paged;
 	}
 
 	/**
