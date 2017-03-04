@@ -31,7 +31,7 @@ abstract class Base extends \HMCI\Iterator\Base {
 	/**
 	 * Get database class instance
 	 *
-	 * @return bool
+	 * @return \wpdb|bool
 	 */
 	public function db() {
 		return $this->database_connection;
