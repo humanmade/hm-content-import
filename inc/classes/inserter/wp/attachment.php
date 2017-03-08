@@ -30,7 +30,7 @@ class Attachment extends Post {
 			$post_data['ID'] = $current_id;
 		}
 
-        if ( $post_data['ID'] ) {
+        if ( ! empty( $post_data['ID'] ) ) {
 
 	        if ( $force_update_existing === true ) {
 
