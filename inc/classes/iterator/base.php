@@ -26,10 +26,21 @@ abstract class Base implements Base_Interface {
 	var $args     = array();
 
 	/**
+	 * Is the iterator being used as a validator or an importer?
+	 *
+	 * @var string
+	 */
+	var $type = 'importer';
+
+	/**
 	 * @param array $args
+	 * @param $type;
+	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $args = array() ) {
+	public function __construct( $args = array(), $type = 'importer' ) {
+
+		$this->type = $type;
 
 		$verified = $this->parse_args( $args );
 
@@ -178,7 +189,6 @@ abstract class Base implements Base_Interface {
 	 * @return array
 	 */
 	public static function get_args() {
-
 		$global_args = array(
 			'items_per_loop'    => array(
 				'default'       => 100,
@@ -195,9 +205,24 @@ abstract class Base implements Base_Interface {
 				'type'          => 'bool',
 				'description'   => __( 'Automatically clear local memory cache on each loop - helps prevent memory leak issues', 'hmci' )
 			),
+			'count'  => array(
+				'default'       => 0,
+				'type'          => 'numeric',
+				'description'   => __( 'Maximum number of items to be imported on execution', 'hmci' )
+			),
+			'offset'  => array(
+				'default'       => 0,
+				'type'          => 'numeric',
+				'description'   => __( 'Offset to begin importing at', 'hmci' )
+			),
+			'resume'  => array(
+				'default'       => false,
+				'type'          => 'bool',
+				'description'   => __( 'Attempt to resume script (if there was a failure during last execution)', 'hmci' )
+			)
 		);
 
-		return array_merge( $global_args, static::get_iterator_args(), static::get_custom_args() );
+		return array_merge( $global_args, static::get_iterator_args(), static::get_custom_args(), static::get_importer_args(), static::get_validator_args() );
 	}
 
 	/**
@@ -226,6 +251,47 @@ abstract class Base implements Base_Interface {
 	 * @return array
 	 */
 	public static function get_iterator_args() {
+
+		return array();
+	}
+
+	/**
+	 * Get arguments of iterator when being used for import
+	 *
+	 * @return array
+	 */
+	public static function get_importer_args() {
+
+		return array(
+			'disable_global_terms'  => array(
+				'default'       => true,
+				'type'          => 'bool',
+				'description'   => __( 'For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import', 'hmci' )
+			),
+			'disable_trackbacks'  => array(
+				'default'       => true,
+				'type'          => 'bool',
+				'description'   => __( 'Disable WordPress trackbacks (avoids cron overflow for large imports)', 'hmci' )
+			),
+			'disable_intermediate_images'  => array(
+				'default'       => false,
+				'type'          => 'bool',
+				'description'   => __( 'Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)', 'hmci' )
+			),
+			'define_wp_importing'  => array(
+				'default'       => true,
+				'type'          => 'bool',
+				'description'   => __( 'Define the WP_IMPORTING flag in WordPress', 'hmci' )
+			),
+		);
+	}
+
+	/**
+	 * Get arguments of iterator when being used for validation
+	 *
+	 * @return array
+	 */
+	public static function get_validator_args() {
 
 		return array();
 	}

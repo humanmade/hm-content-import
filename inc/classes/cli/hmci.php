@@ -18,35 +18,6 @@ class HMCI extends \WP_CLI_Command {
 	 *
 	 * Run a registered import script
 	 *
-	 * ## OPTIONS
-	 *
-	 * <importer-id>
-	 * : ID of the import script to be executed
-	 *
-	 * [--count]
-	 * : Maximum number of items to be imported on execution
-	 *
-	 * [--offset]
-	 * : Offset to begin importing at
-	 *
-	 * [--resume]
-	 * : Attempt to resume script (if there was a failure during last execution)
-	 *
-	 * [--verbose]
-	 * : Output logging data to the terminal during script execution
-	 *
-	 * [--disable_global_terms]
-	 * : For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import
-	 *
-	 * [--disable_trackbacks]
-	 * : Helps prevent cron and memory leak issues
-	 *
-	 * [--disable_intermediate_images]
-	 * : Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)
-	 *
-	 * [--define_wp_importing]
-	 * : Define the WP_IMPORTING constant
-	 *
 	 * @subcommand import
 	 */
 	public function import( $args, $args_assoc ) {
@@ -100,23 +71,6 @@ class HMCI extends \WP_CLI_Command {
 	 *
 	 * Run a registered validation script
 	 *
-	 * ## OPTIONS
-	 *
-	 * <validator-id>
-	 * : ID of the validator script to be executed
-	 *
-	 * [--count]
-	 * : Maximum number of items to be validated on execution
-	 *
-	 * [--offset]
-	 * : Offset to begin validating at
-	 *
-	 * [--resume]
-	 * : Attempt to resume script (if there was a failure during last execution)
-	 *
-	 * [--verbose]
-	 * : Output logging data to the terminal during script execution
-	 *
 	 * @subcommand validate
 	 */
 	public function validate( $args, $args_assoc ) {
@@ -167,6 +121,7 @@ class HMCI extends \WP_CLI_Command {
 	/**
 	 * Custom help command to list importers/validators and their associated args
 	 *
+	 * @subcommand help
 	 */
 	public function help() {
 
@@ -195,29 +150,35 @@ class HMCI extends \WP_CLI_Command {
 			}
 		}
 
-		$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
+		$validators =  Master::get_validators();
 
-		foreach( Master::get_validators() as $impoter_key => $importer ) {
+		if ( $validators ) {
 
-			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
+			$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
 
-			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+			foreach( $validators as $impoter_key => $importer ) {
 
-			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+				$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
 
-			$args = call_user_func( array( $importer, 'get_args' ) );
+				$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
 
-			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+				$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
 
-			foreach( $args as $arg => $data ) {
+				$args = call_user_func( array( $importer, 'get_args' ) );
 
-				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+				$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
 
-				foreach( $data as $data_key => $data_val ) {
+				foreach( $args as $arg => $data ) {
 
-					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+					$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+
+					foreach( $data as $data_key => $data_val ) {
+
+						$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+					}
 				}
 			}
+
 		}
 	}
 

@@ -20,10 +20,11 @@ abstract class Base extends \HMCI\Iterator\Base {
 
 	/**
 	 * @param array $args
+	 * @param $type
 	 */
-	public function __construct( $args = array() ) {
+	public function __construct( $args = array(), $type = 'importer' ) {
 
-		Base::__construct( $args );
+		\HMCI\Iterator\Base::__construct( $args, $type );
 
 		$this->set_db();
 	}
