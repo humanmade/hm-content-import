@@ -65,6 +65,8 @@ class HMCI extends \WP_CLI_Command {
 
 		$this->clear_progress( 'importer', $import_type );
 		$progress->finish();
+
+		$importer->iteration_complete();
 	}
 
 	/**
@@ -80,7 +82,7 @@ class HMCI extends \WP_CLI_Command {
 			'offset'               => 0,
 			'resume'               => false,
 			'verbose'              => true,
-			'show-progress'        => true,
+			'show_progress'        => true,
 		) );
 
 		$validator_type = $args[0];
@@ -90,13 +92,16 @@ class HMCI extends \WP_CLI_Command {
 		$offset         = absint( $args_assoc['offset'] );
 		$total          = $count + $offset;
 
-		$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
-
-		$progress->display();
+		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
+			$progress->display();
+		}
 
 		if ( $args_assoc['resume'] ) {
 			$current_offset = $this->get_progress( 'validator', $validator_type );
-			$progress->tick( $current_offset );
+			if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+				$progress->tick( $current_offset );
+			}
 		} else {
 			$current_offset = 0;
 		}
@@ -105,17 +110,23 @@ class HMCI extends \WP_CLI_Command {
 
 			$validator->iterate_items( $items );
 			$current_offset += count( $items );
-			$progress->tick( count( $items ) );
+			if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+				$progress->tick( count( $items ) );
+			}
 
 			$this->save_progress( 'validator', $validator_type, $current_offset );
 			$this->clear_local_object_cache();
 		}
 
 		$this->clear_progress( 'validator', $validator_type );
-		$progress->finish();
+
+		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+			$progress->finish();
+		}
 
 		$this->clear_progress( 'validator', $validator_type );
 
+		$validator->iteration_complete();
 	}
 
 	/**

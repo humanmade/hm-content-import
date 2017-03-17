@@ -65,6 +65,8 @@ abstract class Base implements Base_Interface {
 				$this->clear_cache();
 			}
 		}
+
+		$this->iteration_complete();
 	}
 
 	/**
@@ -175,7 +177,7 @@ abstract class Base implements Base_Interface {
 			}
 
 			// Arg type is numeric but non-numeric value passed
-			if ( ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
+			if ( array_key_exists( $arg, $this->args ) && ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
 				return new \WP_Error( 'hmci_invalid_arg_type', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
 			}
 		}
@@ -310,6 +312,13 @@ abstract class Base implements Base_Interface {
 		}
 
 		return $offset;
+	}
+
+	/**
+	 * Generic callback which can be used when iteration has been completed
+	 */
+	public function iteration_complete() {
+
 	}
 
 	/**
