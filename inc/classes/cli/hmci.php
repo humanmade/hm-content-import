@@ -6,6 +6,32 @@ use HMCI\Master;
 
 class HMCI extends \WP_CLI_Command {
 
+	/**
+	 * Run a given importer.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <importer>
+	 * : The name of the importer you want to run.
+	 *
+	 * [--count=<number>]
+	 * : The number of items to process in the import.
+	 *
+	 * [--offset=<number>]
+	 * : How many items offset to start the import from.
+	 *
+	 * [--resume]
+	 * : Resume from the previous run's progress.
+	 *
+	 * [--verbose]
+	 * : Verbose debugging output.
+	 *
+	 * [--dry-run]
+	 * : Run the import in dry-run mode, i.e. not inserting any content.
+	 *
+	 * [--export-path=<path>]
+	 * : Where the export file(s) are located.
+	 */
 	public function import( $args, $args_assoc ) {
 
 		$args_assoc = wp_parse_args( $args_assoc, array(
