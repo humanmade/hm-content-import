@@ -17,9 +17,11 @@ class Guest_Author extends Post {
 	 * @param array $author_meta
 	 * @return null|string|\WP_Error
 	 */
-	static function insert( $user_data = array(), $canonical_id = false, $author_meta = array() ) {
+	static function insert( $user_data = [], $canonical_id = false, $author_meta = [] ) {
 
-		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' ) ) {
+		$current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' );
+
+		if ( $canonical_id && $current_id ) {
 			return $current_id;
 		}
 
@@ -90,11 +92,11 @@ class Guest_Author extends Post {
 	 */
 	static function set_authors_for_post( $user_field, $user_values, $post_id ) {
 
-		if ( ! is_array ( $user_values ) ) {
-			$user_values = array( $user_values );
+		if ( ! is_array( $user_values ) ) {
+			$user_values = [ $user_values ];
 		}
 
-		$logins = array();
+		$logins = [];
 
 		foreach ( $user_values as $user_value ) {
 
@@ -110,14 +112,14 @@ class Guest_Author extends Post {
 		// Set the coauthors
 		$coauthors = array_unique( $logins );
 
-		$coauthor_objects = array();
+		$coauthor_objects = [];
 
-		foreach ( $coauthors as &$author_name ){
+		foreach ( $coauthors as &$author_name ) {
 
-			$author = $coauthors_plus->get_coauthor_by( 'user_login', $author_name );
+			$author             = $coauthors_plus->get_coauthor_by( 'user_login', $author_name );
 			$coauthor_objects[] = $author;
-			$term = $coauthors_plus->update_author_term( $author );
-			$author_name = $term->slug;
+			$term               = $coauthors_plus->update_author_term( $author );
+			$author_name        = $term->slug;
 		}
 
 		wp_set_post_terms( $post_id, $coauthors, $coauthors_plus->coauthor_taxonomy, false );
@@ -126,7 +128,7 @@ class Guest_Author extends Post {
 		// update to the first WP_User $coauthor
 		$post_author_user = get_user_by( 'id', get_post( $post_id )->post_author );
 
-		if ( empty( $post_author_user )  || ! in_array( $post_author_user->user_login, $coauthors ) ) {
+		if ( empty( $post_author_user ) || ! in_array( $post_author_user->user_login, $coauthors ) ) {
 
 			foreach ( $coauthor_objects as $coauthor_object ) {
 				if ( 'wpuser' == $coauthor_object->type ) {
@@ -140,7 +142,14 @@ class Guest_Author extends Post {
 				return false;
 			}
 
-			$wpdb->update( $wpdb->posts, array( 'post_author' => $new_author->ID ), array( 'ID' => $post_id ) );
+			$wpdb->update( $wpdb->posts,
+				[
+					'post_author' => $new_author->ID,
+				],
+				[
+					'ID' => $post_id,
+				]
+			);
 			clean_post_cache( $post_id );
 		}
 

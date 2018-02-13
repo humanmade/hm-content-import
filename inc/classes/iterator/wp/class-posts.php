@@ -20,10 +20,10 @@ abstract class Posts extends Base {
 	 */
 	public function get_items( $offset, $count ) {
 
-		$query = $this->get_post_query( array(
+		$query = $this->get_post_query( [
 			'posts_per_page' => $count,
 			'offset'         => $offset,
-		) );
+		] );
 
 		return $query->get_posts();
 	}
@@ -48,15 +48,15 @@ abstract class Posts extends Base {
 	 */
 	protected function get_global_query_args() {
 
-		$whitelist = array(
+		$whitelist = [
 			'post_type',
 			'post_status',
 			'post_author',
-		);
+		];
 
-		$args = array();
+		$args = [];
 
-		foreach( $whitelist as $accepted_arg ) {
+		foreach ( $whitelist as $accepted_arg ) {
 
 			if ( isset( $this->args[ $accepted_arg ] ) ) {
 				$args[ $accepted_arg ] = $this->args[ $accepted_arg ];
@@ -73,20 +73,20 @@ abstract class Posts extends Base {
 	 */
 	public static function get_iterator_args() {
 
-		return array(
-			'post_type' => array(
-				'default'       => 'any',
-				'type'          => 'string',
-				'description'   => __( 'Post type for post query.', 'hmci' )
-			),
-			'post_status' => array(
-				'type'          => 'string',
-				'description'   => __( 'Post status for post query.', 'hmci' )
-			),
-			'post_author' => array(
-				'type'          => 'numeric',
-				'description'   => __( 'Post author for post query.', 'hmci' )
-			),
-		);
+		return [
+			'post_type'   => [
+				'default'     => 'any',
+				'type'        => 'string',
+				'description' => __( 'Post type for post query.', 'hmci' ),
+			],
+			'post_status' => [
+				'type'        => 'string',
+				'description' => __( 'Post status for post query.', 'hmci' ),
+			],
+			'post_author' => [
+				'type'        => 'numeric',
+				'description' => __( 'Post author for post query.', 'hmci' ),
+			],
+		];
 	}
 }

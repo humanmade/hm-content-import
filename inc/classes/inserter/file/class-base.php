@@ -3,7 +3,6 @@
 namespace HMCI\Inserter\File;
 
 /**
- *
  * Base file inserter class
  *
  * Standard class instance to be used for inserting an object into a file
@@ -13,6 +12,8 @@ namespace HMCI\Inserter\File;
 abstract class Base extends \HMCI\Inserter\Base {
 
 	/**
+	 * Check if the item exists in the DB
+	 *
 	 * @param $canonical_id
 	 * @return mixed
 	 */
@@ -21,6 +22,8 @@ abstract class Base extends \HMCI\Inserter\Base {
 	}
 
 	/**
+	 * Set item meta in the DB
+	 *
 	 * @param $wordpress_id
 	 * @param $meta_data
 	 * @return bool
@@ -30,6 +33,8 @@ abstract class Base extends \HMCI\Inserter\Base {
 	}
 
 	/**
+	 * Set the item canonical ID in the DB
+	 *
 	 * @param $wordpress_id
 	 * @param $canonical_id
 	 * @return bool
@@ -39,15 +44,19 @@ abstract class Base extends \HMCI\Inserter\Base {
 	}
 
 	/**
+	 * Get DB item ID from canonical ID
+	 *
 	 * @param $canonical_id
-	 * @return bool
+	 * @return mixed
 	 */
 	static function get_id_from_canonical_id( $canonical_id ) {
 		return false;
 	}
 
 	/**
-	 * @return bool
+	 * Get the canonical ID meta key to be used for DB storage
+	 *
+	 * @return string
 	 */
 	static function get_canonical_id_key() {
 		return false;

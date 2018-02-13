@@ -21,27 +21,29 @@ class Attachment extends Post {
 	 * @param bool $force_update_existing
 	 * @return array|int|object|\WP_Error
 	 */
-	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
+	static function insert( $path, $post_data = [], $canonical_id = false, $post_meta = [], $file_type_override = null, $force_update_existing = true ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
 		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
 
-		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+		$current_id = static::get_id_from_canonical_id( $canonical_id );
+
+		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id ) {
 			$post_data['ID'] = $current_id;
 		}
 
-        if ( ! empty( $post_data['ID'] ) ) {
+		if ( ! empty( $post_data['ID'] ) ) {
 
-	        if ( $force_update_existing === true ) {
+			if ( $force_update_existing === true ) {
 
-		        $post_id = wp_update_post( $post_data, true );
+				$post_id = wp_update_post( $post_data, true );
 
-		        if ( $post_meta && is_array( $post_meta ) ) {
-			        static::set_meta( $post_id, $post_meta );
-		        }
+				if ( $post_meta && is_array( $post_meta ) ) {
+					static::set_meta( $post_id, $post_meta );
+				}
 
-		        static::set_import_path_meta( $post_data['ID'], $path );
-	        }
+				static::set_import_path_meta( $post_data['ID'], $path );
+			}
 
 			return (int) $post_data['ID'];
 		}
@@ -55,7 +57,7 @@ class Attachment extends Post {
 		}
 
 		// do the validation and storage stuff
-		$post_id = media_handle_sideload( $file_array, $post_parent, "", $post_data );
+		$post_id = media_handle_sideload( $file_array, $post_parent, '', $post_data );
 
 		// If remote file, clean up temp file
 		if ( $is_url ) {
@@ -99,9 +101,9 @@ class Attachment extends Post {
 	 */
 	protected static function prepare_file( $path, $is_url, $file_type_override = null ) {
 
-		$file_array = array();
+		$file_array = [];
 
-		//Path is a URL
+		// Path is a URL
 		if ( $is_url ) {
 
 			try {
@@ -112,11 +114,11 @@ class Attachment extends Post {
 
 			// If error storing temporarily, unlink
 			if ( is_wp_error( $file_array['tmp_name'] ) ) {
-				@unlink( $file_array['tmp_name'] );
+				@unlink( $file_array['tmp_name'] ); // phpcs:ignore
 				return $file_array['tmp_name'];
 			}
 
-		//Path is a file path
+			// Path is a file path
 		} else {
 
 			$parts = explode( '/', $path );
@@ -136,18 +138,18 @@ class Attachment extends Post {
 
 		if ( $file_type_override && empty( $matches ) ) {
 
-			$parts = explode( '/', $path );
-			$file_array['name'] = end(  $parts ) . '.' . $file_type_override;
+			$parts              = explode( '/', $path );
+			$file_array['name'] = end( $parts ) . '.' . $file_type_override;
 
 		} if ( empty( $matches ) ) {
 
-			$parts = explode( '/', $path );
-            $file_array['name'] = end( $parts ) . '.png';
+			$parts              = explode( '/', $path );
+			$file_array['name'] = end( $parts ) . '.png';
 
-        } else {
+		} else {
 
-            $file_array['name'] = $matches[0];
-        }
+			$file_array['name'] = $matches[0];
+		}
 
 		$file_array['name'] = sanitize_file_name( $file_array['name'] );
 
@@ -161,7 +163,7 @@ class Attachment extends Post {
 	 */
 	protected static function cleanup_file( $file_array ) {
 
-		@unlink( $file_array['tmp_name'] );
+		@unlink( $file_array['tmp_name'] ); //phpcs:ignore
 	}
 
 	/**
@@ -181,7 +183,7 @@ class Attachment extends Post {
 	 * @param $canonical_id
 	 * @return null|string
 	 */
-	static function get_id_from_canonical_id( $canonical_id  ) {
+	static function get_id_from_canonical_id( $canonical_id ) {
 
 		return parent::get_id_from_canonical_id( $canonical_id, 'attachment' );
 	}
@@ -218,9 +220,9 @@ class Attachment extends Post {
 	static function download_url( $url, $timeout = 300 ) {
 
 		//WARNING: The file is not automatically deleted, The script must unlink() the file.
-		if ( ! $url )
-			return new \WP_Error('http_no_url', __('Invalid URL Provided.'));
-
+		if ( ! $url ) {
+			return new \WP_Error( 'http_no_url', __( 'Invalid URL Provided.' ) );
+		}
 		/*
 		 * Override default functionality from wp download_url function
 		 */
@@ -241,18 +243,22 @@ class Attachment extends Post {
 		/*
 		 * End override default
 		 */
+		if ( ! $tmpfname ) {
+			return new \WP_Error( 'http_no_file', __( 'Could not create Temporary file.' ) );
+		}
 
-		if ( ! $tmpfname )
-			return new \WP_Error('http_no_file', __('Could not create Temporary file.'));
-
-		$response = wp_safe_remote_get( $url, array( 'timeout' => $timeout, 'stream' => true, 'filename' => $tmpfname ) );
+		$response = wp_safe_remote_get( $url, [
+			'timeout'  => $timeout,
+			'stream'   => true,
+			'filename' => $tmpfname,
+		] );
 
 		if ( is_wp_error( $response ) ) {
 			unlink( $tmpfname );
 			return $response;
 		}
 
-		if ( 200 != wp_remote_retrieve_response_code( $response ) ){
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
 			unlink( $tmpfname );
 			return new \WP_Error( 'http_404', trim( wp_remote_retrieve_response_message( $response ) ) );
 		}

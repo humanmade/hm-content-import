@@ -17,9 +17,11 @@ class Comment extends Base {
 	 * @param array $comment_meta
 	 * @return int|\WP_Error
 	 */
-	static function insert( $comment_data = array(), $canonical_id = false, $comment_meta = array() ) {
+	static function insert( $comment_data = [], $canonical_id = false, $comment_meta = [] ) {
 
-		if ( empty( $comment_data['comment_ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+		$current_id = static::get_id_from_canonical_id( $canonical_id );
+
+		if ( empty( $comment_data['comment_ID'] ) && $canonical_id && $current_id ) {
 			$comment_data['comment_ID'] = $current_id;
 		}
 
@@ -101,7 +103,7 @@ class Comment extends Base {
 			return;
 		}
 
-		update_comment_meta( $id, static::get_canonical_id_key() , $canonical_id );
+		update_comment_meta( $id, static::get_canonical_id_key(), $canonical_id );
 		update_comment_meta( $id, sprintf( 'hmci_lookup_%s', md5( $canonical_id ) ), 1 );
 	}
 

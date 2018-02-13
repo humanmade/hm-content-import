@@ -17,9 +17,11 @@ class User extends Base {
 	 * @param array $user_meta
 	 * @return int|\WP_Error
 	 */
-	static function insert( $user_data, $canonical_id = false, $user_meta = array() ) {
+	static function insert( $user_data, $canonical_id = false, $user_meta = [] ) {
 
-		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
+		$current_id = static::get_id_from_canonical_id( $canonical_id );
+
+		if ( $canonical_id && $current_id ) {
 			$user_data['ID'] = $current_id;
 		}
 
@@ -51,7 +53,7 @@ class User extends Base {
 		foreach ( $meta_data as $meta_key => $meta_value ) {
 
 			if ( is_null( $meta_value ) ) {
-				delete_post_meta( $user_id, $meta_key  );
+				delete_post_meta( $user_id, $meta_key );
 			} else {
 				update_user_meta( $user_id, $meta_key, $meta_value );
 			}
