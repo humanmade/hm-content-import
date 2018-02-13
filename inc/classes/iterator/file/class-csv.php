@@ -21,20 +21,21 @@ abstract class CSV extends Base {
 	protected function get_file_contents( $file ) {
 
 		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
-			return array();
+			return [];
 		}
 
 		$header = null;
-		$data   = array();
+		$data   = [];
+		$handle = fopen( $file, 'r' );
 
-		if ( ( $handle = fopen( $file, 'r' ) ) !== false ) {
+		if ( $handle !== false ) {
 
-			while ( ( $row = fgetcsv( $handle, 4096, ',', '"' ) ) !== false ) {
+			while ( ( $row = fgetcsv( $handle, 4096, ',', '"' ) ) !== false ) { //phpcs:ignore
 
 				if ( ! $header ) {
 					$header = $row;
 				} else {
-					$data[] = array_combine($header, $row);
+					$data[] = array_combine( $header, $row );
 				}
 			}
 
@@ -59,5 +60,4 @@ abstract class CSV extends Base {
 
 		} );
 	}
-	
 }

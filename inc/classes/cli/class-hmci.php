@@ -4,6 +4,8 @@ namespace HMCI\CLI;
 
 use HMCI\Master;
 
+use function HMCI\Utils\clear_local_object_cache as clear_local_cache;
+
 /**
  * Custon WP_CLI Command for HMCI
  *
@@ -22,7 +24,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	public function import( $args, $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, array(
+		$args_assoc = wp_parse_args( $args_assoc, [
 			'count'                       => 0,
 			'offset'                      => 0,
 			'resume'                      => false,
@@ -31,7 +33,7 @@ class HMCI extends \WP_CLI_Command {
 			'disable_trackbacks'          => true,
 			'disable_intermediate_images' => false,
 			'define_wp_importing'         => true,
-		) );
+		] );
 
 		$this->manage_global_settings( $args_assoc );
 
@@ -42,7 +44,8 @@ class HMCI extends \WP_CLI_Command {
 		$offset      = absint( $args_assoc['offset'] );
 		$total       = $count + $offset;
 
-		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %s (%d items)', 'hmci' ), $import_type, $count ), $count, 100 );
+		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %1$d Refers to number of items being imported
+		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %1$s (%1$d items)', 'hmci' ), $import_type, $count ), $count, 100 );
 
 		$progress->display();
 
@@ -53,14 +56,18 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
+		$items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] );
+
+		while ( ( $offset + $current_offset ) < $total && $items ) {
 
 			$importer->iterate_items( $items );
 			$current_offset += count( $items );
-            $progress->tick( count( $items ) );
+			$progress->tick( count( $items ) );
 
 			$this->save_progress( 'importer', $import_type, $current_offset );
-			$this->clear_local_object_cache();
+			clear_local_cache();
+
+			$items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] );
 		}
 
 		$this->clear_progress( 'importer', $import_type );
@@ -77,13 +84,13 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	public function validate( $args, $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, array(
-			'count'                => 0,
-			'offset'               => 0,
-			'resume'               => false,
-			'verbose'              => true,
-			'show_progress'        => true,
-		) );
+		$args_assoc = wp_parse_args( $args_assoc, [
+			'count'         => 0,
+			'offset'        => 0,
+			'resume'        => false,
+			'verbose'       => true,
+			'show_progress' => true,
+		] );
 
 		$validator_type = $args[0];
 		$validator      = $this->get_validator( $validator_type, $args_assoc );
@@ -93,7 +100,8 @@ class HMCI extends \WP_CLI_Command {
 		$total          = $count + $offset;
 
 		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
-			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
+			// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %1$d Refers to number of items being imported
+			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %1$s (%1$d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
 			$progress->display();
 		}
 
@@ -106,7 +114,9 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
+		$items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] );
+
+		while ( ( $offset + $current_offset ) < $total && $items ) {
 
 			$validator->iterate_items( $items );
 			$current_offset += count( $items );
@@ -115,7 +125,9 @@ class HMCI extends \WP_CLI_Command {
 			}
 
 			$this->save_progress( 'validator', $validator_type, $current_offset );
-			$this->clear_local_object_cache();
+			clear_local_cache();
+
+			$items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] );
 		}
 
 		$this->clear_progress( 'validator', $validator_type );
@@ -138,58 +150,57 @@ class HMCI extends \WP_CLI_Command {
 
 		$this->debug( "\r\nAVAILABLE IMPORTERS (hmci import)" );
 
-		foreach( Master::get_importers() as $impoter_key => $importer ) {
+		foreach ( Master::get_importers() as $impoter_key => $importer ) {
 
 			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
 
-			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+			$this->debug( sprintf( '%sDescription', $this->get_tabs( 1 ) ) );
 
-			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( [ $importer, 'get_description' ] ) ) );
 
-			$args = call_user_func( array( $importer, 'get_args' ) );
+			$args = call_user_func( [ $importer, 'get_args' ] );
 
-			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+			$this->debug( sprintf( '%sArguments', $this->get_tabs( 1 ) ) );
 
-			foreach( $args as $arg => $data ) {
+			foreach ( $args as $arg => $data ) {
 
-				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ), $arg ) );
 
-				foreach( $data as $data_key => $data_val ) {
+				foreach ( $data as $data_key => $data_val ) {
 
-					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+					$this->debug( sprintf( '%s%s: %s', $this->get_tabs( 3 ), $this->pad_string( $data_key ),  $data_val ) );
 				}
 			}
 		}
 
-		$validators =  Master::get_validators();
+		$validators = Master::get_validators();
 
 		if ( $validators ) {
 
 			$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
 
-			foreach( $validators as $impoter_key => $importer ) {
+			foreach ( $validators as $impoter_key => $importer ) {
 
 				$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
 
-				$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+				$this->debug( sprintf( '%sDescription', $this->get_tabs( 1 ) ) );
 
-				$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+				$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( [ $importer, 'get_description' ] ) ) );
 
-				$args = call_user_func( array( $importer, 'get_args' ) );
+				$args = call_user_func( [ $importer, 'get_args' ] );
 
-				$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+				$this->debug( sprintf( '%sArguments', $this->get_tabs( 1 ) ) );
 
-				foreach( $args as $arg => $data ) {
+				foreach ( $args as $arg => $data ) {
 
-					$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+					$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ), $arg ) );
 
-					foreach( $data as $data_key => $data_val ) {
+					foreach ( $data as $data_key => $data_val ) {
 
-						$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+						$this->debug( sprintf( '%s%s: %s', $this->get_tabs( 3 ), $this->pad_string( $data_key ),  $data_val ) );
 					}
 				}
 			}
-
 		}
 	}
 
@@ -203,7 +214,7 @@ class HMCI extends \WP_CLI_Command {
 	protected function get_importer( $import_type, $args ) {
 
 		if ( $args['verbose'] ) {
-			$args['debugger'] = array( $this, 'debug' );
+			$args['debugger'] = [ $this, 'debug' ];
 		}
 
 		$importer = Master::get_importer_instance( $import_type, $args );
@@ -229,7 +240,7 @@ class HMCI extends \WP_CLI_Command {
 	protected function get_validator( $validator_type, $args ) {
 
 		if ( $args['verbose'] ) {
-			$args['debugger'] = array( $this, 'debug' );
+			$args['debugger'] = [ $this, 'debug' ];
 		}
 
 		$validator = Master::get_validator_instance( $validator_type, $args );
@@ -261,7 +272,7 @@ class HMCI extends \WP_CLI_Command {
 
 			$output = $output->getMessage();
 
-		} else if ( ! is_string( $output ) ) {
+		} elseif ( ! is_string( $output ) ) {
 
 			$output = var_export( $output, true );
 		}
@@ -310,31 +321,6 @@ class HMCI extends \WP_CLI_Command {
 	protected function get_progress( $type, $name ) {
 
 		return absint( get_option( 'hmci_pg_' . md5( $type . '~' . $name ), 0 ) );
-	}
-
-	/**
-	 * Clear local object cache (helps prevent memory leaks)
-	 *
-	 */
-	protected function clear_local_object_cache() {
-
-		global $wpdb, $wp_object_cache;
-
-		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
-
-		if ( ! is_object( $wp_object_cache ) ) {
-			return;
-		}
-
-		$wp_object_cache->group_ops = array();
-		//$wp_object_cache->stats = array();
-		$wp_object_cache->memcache_debug = array();
-		$wp_object_cache->cache = array();
-
-		if ( is_callable( $wp_object_cache, '__remoteset' ) ) {
-			$wp_object_cache->__remoteset(); // important
-		}
-
 	}
 
 	/**
@@ -404,10 +390,9 @@ class HMCI extends \WP_CLI_Command {
 
 		add_filter( 'intermediate_image_sizes_advanced', function( $sizes, $metadata ) {
 
-			return array();
+			return [];
 
 		}, 10, 2 );
-
 	}
 
 	/**
@@ -417,9 +402,9 @@ class HMCI extends \WP_CLI_Command {
 	 * @param int $chars
 	 * @return string
 	 */
-	protected function pad_string( $string, $chars  = 15 ) {
+	protected function pad_string( $string, $chars = 15 ) {
 
-		while( strlen( $string ) < $chars ) {
+		while ( strlen( $string ) < $chars ) {
 			$string .= ' ';
 		}
 
@@ -437,7 +422,7 @@ class HMCI extends \WP_CLI_Command {
 		$single_tab = '    ';
 		$string     = '';
 
-		for( $i=0; $i<$tabs; $i++ ) {
+		for ( $i = 0; $i < $tabs; $i++ ) {
 
 			$string .= $single_tab;
 		}

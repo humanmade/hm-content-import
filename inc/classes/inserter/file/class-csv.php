@@ -11,7 +11,14 @@ namespace HMCI\Inserter\File;
  */
 abstract class CSV extends \HMCI\Inserter\Base {
 
-	static $accessed_files = array();
+	/**
+	 * Internal reference to which files have already been written in the current thread
+	 *
+	 * Used for inserting csv headers without explicit external control code
+	 *
+	 * @var array
+	 */
+	protected static $accessed_files = [];
 
 	/**
 	 * Insert a row into the CSV file
@@ -26,7 +33,7 @@ abstract class CSV extends \HMCI\Inserter\Base {
 
 		$item = (array) $item;
 
-		if ( ! in_array( $file_path, static::$accessed_files ) && $mode === 'default' ) {
+		if ( ! in_array( $file_path, static::$accessed_files, true ) && $mode === 'default' ) {
 
 			static::$accessed_files[] = $file_path;
 
@@ -34,7 +41,7 @@ abstract class CSV extends \HMCI\Inserter\Base {
 
 			fputcsv( $file_input, array_keys( $item ) );
 
-		} else if( $mode === 'default' ) {
+		} elseif ( $mode === 'default' ) {
 
 			$file_input = fopen( $file_path, 'a+' );
 

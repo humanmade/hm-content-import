@@ -32,5 +32,4 @@ abstract class Base implements Base_Interface {
 
 		return (bool) static::get_id_from_canonical_id( $canonical_id );
 	}
-
 }
