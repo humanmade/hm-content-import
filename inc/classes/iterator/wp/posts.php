@@ -1,11 +1,23 @@
 <?php
 
-namespace HMCI\Source;
+namespace HMCI\Iterator\WP;
 
-trait Posts {
+/**
+ * Base WP Posts iterator class
+ * Iterates over provided WP post objects for processing
+ *
+ * Class Posts
+ * @package HMCI\Iterator\WP
+ */
+abstract class Posts extends Base {
 
-	use Base;
-
+	/**
+	 * Get post objects (paged)
+	 *
+	 * @param $offset
+	 * @param $count
+	 * @return array
+	 */
 	public function get_items( $offset, $count ) {
 
 		$query = $this->get_post_query( array(
@@ -16,6 +28,12 @@ trait Posts {
 		return $query->get_posts();
 	}
 
+	/**
+	 * Get post query
+	 *
+	 * @param $args
+	 * @return \WP_Query
+	 */
 	protected function get_post_query( $args ) {
 
 		$query = new \WP_Query( wp_parse_args( $args, $this->get_global_query_args() ) );
@@ -23,6 +41,11 @@ trait Posts {
 		return $query;
 	}
 
+	/**
+	 * Get global post query args (no pagination)
+	 *
+	 * @return array
+	 */
 	protected function get_global_query_args() {
 
 		$whitelist = array(
@@ -43,7 +66,12 @@ trait Posts {
 		return $args;
 	}
 
-	public static function get_source_args() {
+	/**
+	 * Get iterator argument definitions
+	 *
+	 * @return array
+	 */
+	public static function get_iterator_args() {
 
 		return array(
 			'post_type' => array(

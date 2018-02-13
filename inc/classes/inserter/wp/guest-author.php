@@ -1,15 +1,17 @@
 <?php
 
-namespace HMCI\Destination\WP;
+namespace HMCI\Inserter\WP;
 
 /**
- * co-authors-plus guest author destination class. Used for importing guest-author objects
+ * co-authors-plus guest author inserter class. Used for importing guest-author objects
  *
- * @package HMCI\Destination\WP
+ * @package HMCI\Inserter\WP
  */
 class Guest_Author extends Post {
 
 	/**
+	 * Add guest author (post) object into the database
+	 *
 	 * @param array $user_data
 	 * @param bool $canonical_id
 	 * @param array $author_meta
@@ -49,6 +51,8 @@ class Guest_Author extends Post {
 	}
 
 	/**
+	 * Get guest author object by ID
+	 *
 	 * @param $field
 	 * @param $value
 	 * @return bool|int
@@ -61,6 +65,8 @@ class Guest_Author extends Post {
 	}
 
 	/**
+	 * Get guest author object by provided field
+	 *
 	 * @param $user_field
 	 * @param $user_value
 	 * @return mixed
@@ -75,6 +81,8 @@ class Guest_Author extends Post {
 	}
 
 	/**
+	 * Set authors on a provided post
+	 *
 	 * @param $user_field
 	 * @param $user_values
 	 * @param $post_id

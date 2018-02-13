@@ -1,33 +1,23 @@
 <?php
 
-namespace HMCI\Source;
+namespace HMCI\Iterator\File;
 
-trait CSV_File {
+/**
+ * Base CSV file iterator class
+ *
+ * Iterates over provided csv file for processing
+ *
+ * Class CSV
+ * @package HMCI\Iterator\File
+ */
+abstract class CSV extends Base {
 
-	use File;
-
-	public function get_items( $offset, $count ) {
-
-		$files = $this->get_files_in_path();
-
-		if ( is_wp_error( $files ) ) {
-			return $files;
-		}
-
-		$contents    = $this->get_file_contents( array_pop( $files ) );
-		$items_raw   = $this->get_items_from_content( $contents );
-
-		$items_paged = array_slice( $items_raw, $offset, $count );
-		$items       = array();
-
-		foreach ( $items_paged as $item_raw ) {
-
-			$items[] = $this->parse_item( $item_raw );
-		}
-
-		return $items;
-	}
-
+	/**
+	 * Get file contents
+	 *
+	 * @param $file
+	 * @return array
+	 */
 	protected function get_file_contents( $file ) {
 
 		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
@@ -55,6 +45,12 @@ trait CSV_File {
 		return $data;
 	}
 
+	/**
+	 * Filter files (only allow .csv extensions)
+	 *
+	 * @param $files
+	 * @return array
+	 */
 	protected function filter_files( $files ) {
 
 		return array_filter( $files, function( $filename ) {

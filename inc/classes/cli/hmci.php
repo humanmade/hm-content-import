@@ -18,35 +18,6 @@ class HMCI extends \WP_CLI_Command {
 	 *
 	 * Run a registered import script
 	 *
-	 * ## OPTIONS
-	 *
-	 * <importer-id>
-	 * : ID of the import script to be executed
-	 *
-	 * [--count]
-	 * : Maximum number of items to be imported on execution
-	 *
-	 * [--offset]
-	 * : Offset to begin importing at
-	 *
-	 * [--resume]
-	 * : Attempt to resume script (if there was a failure during last execution)
-	 *
-	 * [--verbose]
-	 * : Output logging data to the terminal during script execution
-	 *
-	 * [--disable_global_terms]
-	 * : For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import
-	 *
-	 * [--disable_trackbacks]
-	 * : Helps prevent cron and memory leak issues
-	 *
-	 * [--disable_intermediate_images]
-	 * : Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)
-	 *
-	 * [--define_wp_importing]
-	 * : Define the WP_IMPORTING constant
-	 *
 	 * @subcommand import
 	 */
 	public function import( $args, $args_assoc ) {
@@ -84,7 +55,7 @@ class HMCI extends \WP_CLI_Command {
 
 		while ( ( $offset + $current_offset ) < $total && $items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] ) ) {
 
-			$importer->import_items( $items );
+			$importer->iterate_items( $items );
 			$current_offset += count( $items );
             $progress->tick( count( $items ) );
 
@@ -94,28 +65,13 @@ class HMCI extends \WP_CLI_Command {
 
 		$this->clear_progress( 'importer', $import_type );
 		$progress->finish();
+
+		$importer->iteration_complete();
 	}
 
 	/**
 	 *
 	 * Run a registered validation script
-	 *
-	 * ## OPTIONS
-	 *
-	 * <validator-id>
-	 * : ID of the validator script to be executed
-	 *
-	 * [--count]
-	 * : Maximum number of items to be validated on execution
-	 *
-	 * [--offset]
-	 * : Offset to begin validating at
-	 *
-	 * [--resume]
-	 * : Attempt to resume script (if there was a failure during last execution)
-	 *
-	 * [--verbose]
-	 * : Output logging data to the terminal during script execution
 	 *
 	 * @subcommand validate
 	 */
@@ -126,24 +82,24 @@ class HMCI extends \WP_CLI_Command {
 			'offset'               => 0,
 			'resume'               => false,
 			'verbose'              => true,
-			'show-progress'        => true,
+			'show_progress'        => true,
 		) );
 
-		$validate_type = $args[0];
-		$validator    = $this->get_validator( $validate_type, $args_assoc );
-		$count_all   = ( $validator->get_count() - $args_assoc['offset'] );
-		$count       = ( $count_all < absint( $args_assoc['count'] ) || $args_assoc['count'] === 0 ) ? $count_all : absint( $args_assoc['count'] );
-		$offset      = absint( $args_assoc['offset'] );
-		$total       = $count + $offset;
+		$validator_type = $args[0];
+		$validator      = $this->get_validator( $validator_type, $args_assoc );
+		$count_all      = ( $validator->get_count() - $args_assoc['offset'] );
+		$count          = ( $count_all < absint( $args_assoc['count'] ) || $args_assoc['count'] === 0 ) ? $count_all : absint( $args_assoc['count'] );
+		$offset         = absint( $args_assoc['offset'] );
+		$total          = $count + $offset;
 
-		if ( $args_assoc['show-progress'] ) {
-			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validate_type, $count ), $count, 100 );
+		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %s (%d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
+			$progress->display();
 		}
 
 		if ( $args_assoc['resume'] ) {
-			$current_offset = $this->get_progress( 'validator', $validate_type );
-
-			if ( ! empty( $progress ) ) {
+			$current_offset = $this->get_progress( 'validator', $validator_type );
+			if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
 				$progress->tick( $current_offset );
 			}
 		} else {
@@ -152,24 +108,31 @@ class HMCI extends \WP_CLI_Command {
 
 		while ( ( $offset + $current_offset ) < $total && $items = $validator->get_items( $offset + $current_offset, $validator->args['items_per_loop'] ) ) {
 
-			$validator->validate_items( $items );
+			$validator->iterate_items( $items );
 			$current_offset += count( $items );
-
-			if ( ! empty( $progress ) ) {
+			if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
 				$progress->tick( count( $items ) );
 			}
 
-			$this->save_progress( 'validator', $validate_type, $current_offset );
+			$this->save_progress( 'validator', $validator_type, $current_offset );
 			$this->clear_local_object_cache();
 		}
 
-		$this->clear_progress( 'validator', $validate_type );
+		$this->clear_progress( 'validator', $validator_type );
 
+		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
+			$progress->finish();
+		}
+
+		$this->clear_progress( 'validator', $validator_type );
+
+		$validator->iteration_complete();
 	}
 
 	/**
 	 * Custom help command to list importers/validators and their associated args
 	 *
+	 * @subcommand help
 	 */
 	public function help() {
 
@@ -198,29 +161,35 @@ class HMCI extends \WP_CLI_Command {
 			}
 		}
 
-		$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
+		$validators =  Master::get_validators();
 
-		foreach( Master::get_validators() as $impoter_key => $importer ) {
+		if ( $validators ) {
 
-			$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
+			$this->debug( "\r\nAVAILABLE VALIDATORS (hmci validate)" );
 
-			$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
+			foreach( $validators as $impoter_key => $importer ) {
 
-			$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
+				$this->debug( sprintf( "\r\n%s\r\n", $impoter_key ) );
 
-			$args = call_user_func( array( $importer, 'get_args' ) );
+				$this->debug( sprintf( "%sDescription", $this->get_tabs( 1 ) ) );
 
-			$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
+				$this->debug( sprintf( "\r\n%s%s\r\n", $this->get_tabs( 2 ), call_user_func( array( $importer, 'get_description' ) ) ) );
 
-			foreach( $args as $arg => $data ) {
+				$args = call_user_func( array( $importer, 'get_args' ) );
 
-				$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+				$this->debug( sprintf( "%sArguments", $this->get_tabs( 1 ) ) );
 
-				foreach( $data as $data_key => $data_val ) {
+				foreach( $args as $arg => $data ) {
 
-					$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+					$this->debug( sprintf( "\r\n%s%s", $this->get_tabs( 2 ) , $arg ) );
+
+					foreach( $data as $data_key => $data_val ) {
+
+						$this->debug( sprintf( "%s%s: %s", $this->get_tabs( 3 ),  $this->pad_string( $data_key ),  $data_val ) );
+					}
 				}
 			}
+
 		}
 	}
 
@@ -229,7 +198,7 @@ class HMCI extends \WP_CLI_Command {
 	 *
 	 * @param $import_type
 	 * @param $args
-	 * @return bool|\HMCI\Importer\Base|\WP_Error
+	 * @return bool|\HMCI\Iterator\Base|\WP_Error
 	 */
 	protected function get_importer( $import_type, $args ) {
 
@@ -255,7 +224,7 @@ class HMCI extends \WP_CLI_Command {
 	 *
 	 * @param $validator_type
 	 * @param $args
-	 * @return bool|\HMCI\Validator\Base|\WP_Error
+	 * @return bool|\HMCI\Iterator\Base|\WP_Error
 	 */
 	protected function get_validator( $validator_type, $args ) {
 

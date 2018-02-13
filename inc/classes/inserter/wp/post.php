@@ -1,15 +1,17 @@
 <?php
 
-namespace HMCI\Destination\WP;
+namespace HMCI\Inserter\WP;
 
 /**
- * WordPress post destination - manages inserting posts from post_data and meta_data
+ * WordPress post inserter - manages inserting posts from post_data and meta_data
  *
- * @package HMCI\Destination\WP
+ * @package HMCI\Inserter\WP
  */
 class Post extends Base {
 
 	/**
+	 * Add post object to the database
+	 *
 	 * @param array $post_data
 	 * @param bool $canonical_id
 	 * @param array $post_meta
@@ -47,6 +49,8 @@ class Post extends Base {
 	}
 
 	/**
+	 * Set meta data
+	 *
 	 * @param $post_id
 	 * @param $meta_data
 	 */
@@ -64,6 +68,8 @@ class Post extends Base {
 	}
 
 	/**
+	 * Check if post exists with provided canonical ID
+	 *
 	 * @param $canonical_id
 	 * @param string $post_type
 	 * @return bool
@@ -74,6 +80,8 @@ class Post extends Base {
 	}
 
 	/**
+	 * Get post ID from canonical ID
+	 *
 	 * @param $canonical_id
 	 * @param string $post_type
 	 * @return null|string
@@ -88,6 +96,8 @@ class Post extends Base {
 	}
 
 	/**
+	 * Set canonical ID meta
+	 *
 	 * @param $id
 	 * @param $canonical_id
 	 * @param string $post_type

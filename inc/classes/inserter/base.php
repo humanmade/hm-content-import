@@ -1,18 +1,20 @@
 <?php
 
-namespace HMCI\Destination;
+namespace HMCI\Inserter;
 
 /**
  *
- * Base destination class
+ * Base inserter class
  *
  * Standard class instance to be used for inserting an object somewhere
  *
- * @package HMCI\Destination
+ * @package HMCI\Inserter
  */
 abstract class Base implements Base_Interface {
 
 	/**
+	 * Get canonical ID meta key
+	 *
 	 * @return mixed|void
 	 */
 	static function get_canonical_id_key() {
@@ -21,6 +23,8 @@ abstract class Base implements Base_Interface {
 	}
 
 	/**
+	 * Check if object exists for provided canonical ID
+	 *
 	 * @param $canonical_id
 	 * @return bool
 	 */
