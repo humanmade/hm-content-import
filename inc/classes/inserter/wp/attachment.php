@@ -1,9 +1,26 @@
 <?php
 
-namespace HMCI\Import_Type;
+namespace HMCI\Inserter\WP;
 
+/**
+ *
+ * WordPress attachment inserter - manages inserting attachments from url/path, post and meta data
+ *
+ * @package HMCI\Destination\WP
+ */
 class Attachment extends Post {
 
+	/**
+	 * Upload and add attachment object into the database
+	 *
+	 * @param array $path
+	 * @param array $post_data
+	 * @param bool $canonical_id
+	 * @param array $post_meta
+	 * @param null $file_type_override
+	 * @param bool $force_update_existing
+	 * @return array|int|object|\WP_Error
+	 */
 	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
@@ -62,6 +79,9 @@ class Attachment extends Post {
 		return $post_id;
 	}
 
+	/**
+	 * Ensure files required for managing media uploads are included
+	 */
 	protected static function require_dependencies() {
 
 		require_once( ABSPATH . '/wp-admin/includes/file.php' );
@@ -69,6 +89,14 @@ class Attachment extends Post {
 		require_once( ABSPATH . '/wp-admin/includes/image.php' );
 	}
 
+	/**
+	 * Upload attachment file
+	 *
+	 * @param $path
+	 * @param $is_url
+	 * @param null $file_type_override
+	 * @return array
+	 */
 	protected static function prepare_file( $path, $is_url, $file_type_override = null ) {
 
 		$file_array = array();
@@ -91,7 +119,9 @@ class Attachment extends Post {
 		//Path is a file path
 		} else {
 
-			$name = end( ( explode( '/', $path ) ) );
+			$parts = explode( '/', $path );
+
+			$name = end( $parts );
 
 			$tmp_path = sprintf( '/tmp/%s', $name );
 
@@ -105,10 +135,17 @@ class Attachment extends Post {
 		preg_match( apply_filters( 'hmci_attachment_filename_pattern', '/[^\?\/\=]+\.(jpg|jpe|jpeg|gif|png|ico|pdf|csv|txt)/i' ), $path, $matches );
 
 		if ( $file_type_override && empty( $matches ) ) {
-			$file_array['name']  = end( ( explode( '/', $path ) ) ) . '.' . $file_type_override;
+
+			$parts = explode( '/', $path );
+			$file_array['name'] = end(  $parts ) . '.' . $file_type_override;
+
 		} if ( empty( $matches ) ) {
-            $file_array['name']  = end( ( explode( '/', $path ) ) ) . '.png';
+
+			$parts = explode( '/', $path );
+            $file_array['name'] = end( $parts ) . '.png';
+
         } else {
+
             $file_array['name'] = $matches[0];
         }
 
@@ -117,31 +154,67 @@ class Attachment extends Post {
 		return $file_array;
 	}
 
+	/**
+	 * Remove temporary file
+	 *
+	 * @param $file_array
+	 */
 	protected static function cleanup_file( $file_array ) {
 
 		@unlink( $file_array['tmp_name'] );
 	}
 
+	/**
+	 * Check if attachment exists in the database
+	 *
+	 * @param $canonical_id
+	 * @return bool
+	 */
 	static function exists( $canonical_id ) {
 
 		return (bool) static::get_id_from_canonical_id( $canonical_id );
 	}
 
+	/**
+	 * Get attachment from canonical ID if it exists in the database
+	 *
+	 * @param $canonical_id
+	 * @return null|string
+	 */
 	static function get_id_from_canonical_id( $canonical_id  ) {
 
 		return parent::get_id_from_canonical_id( $canonical_id, 'attachment' );
 	}
 
+	/**
+	 * Set attachment canonical ID meta
+	 *
+	 * @param $id
+	 * @param $canonical_id
+	 */
 	static function set_canonical_id( $id, $canonical_id ) {
 
 		parent::set_canonical_id( $id, $canonical_id, 'attachment' );
 	}
 
+	/**
+	 * Set import path meta
+	 *
+	 * @param $id
+	 * @param $import_path
+	 */
 	static function set_import_path_meta( $id, $import_path ) {
 
 		update_post_meta( $id, 'hmci_import_path', $import_path );
 	}
 
+	/**
+	 * Download a remote attachment file
+	 *
+	 * @param $url
+	 * @param int $timeout
+	 * @return array|bool|object|string|\WP_Error
+	 */
 	static function download_url( $url, $timeout = 300 ) {
 
 		//WARNING: The file is not automatically deleted, The script must unlink() the file.
@@ -152,9 +225,11 @@ class Attachment extends Post {
 		 * Override default functionality from wp download_url function
 		 */
 
+		$parts = explode( '/', $url );
+
 		// Set variables for storage
 		// Fix file filename for query strings
-		$found_extension = strpos( $url, '/' ) !== false && strpos( end( ( explode( '/', $url ) ) ), '.' ) !== false;
+		$found_extension = strpos( $url, '/' ) !== false && strpos( end( $parts ), '.' ) !== false;
 
 		// wp_tempnam expects an extension to replace but in some cases download urls won't include an extension - it doesn't matter what extension we use
 		if ( ! $found_extension ) {

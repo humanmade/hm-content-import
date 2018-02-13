@@ -1,9 +1,22 @@
 <?php
 
-namespace HMCI\Importer;
+namespace HMCI\Iterator\Files;
 
-abstract class XML_Files extends Files {
+/**
+ * Base XML files iterator class
+ * Iterates over provided XML files for processing
+ *
+ * Class XML
+ * @package HMCI\Iterator\Files
+ */
+abstract class XML extends Base {
 
+	/**
+	 * Parse file contents to simplexml object
+	 *
+	 * @param $item
+	 * @return bool|\SimpleXMLElement
+	 */
 	public function parse_item( $item ) {
 
 		if ( ! $item ) {
@@ -19,6 +32,12 @@ abstract class XML_Files extends Files {
 		return $xml;
 	}
 
+	/**
+	 * Filter provided files (must have .xml extension)
+	 *
+	 * @param $files
+	 * @return array
+	 */
 	protected function filter_files( $files ) {
 
 		return array_filter( $files, function( $file_path ) {

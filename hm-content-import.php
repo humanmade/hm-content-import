@@ -12,35 +12,43 @@ Text-Domain: hmci
 
 namespace HMCI;
 
-require_once( __DIR__ . '/inc/classes/importer/traits/file-trait.php' );
+require_once( __DIR__ . '/inc/classes/iterator/base-interface.php' );
+require_once( __DIR__ . '/inc/classes/iterator/base.php' );
 
-require_once( __DIR__ . '/inc/classes/importer/base.php' );
-require_once( __DIR__ . '/inc/classes/importer/database.php' );
-require_once( __DIR__ . '/inc/classes/importer/file.php' );
-require_once( __DIR__ . '/inc/classes/importer/files.php' );
-require_once( __DIR__ . '/inc/classes/importer/json-files.php' );
-require_once( __DIR__ . '/inc/classes/importer/csv-file.php' );
-require_once( __DIR__ . '/inc/classes/importer/post-content.php' );
-require_once( __DIR__ . '/inc/classes/importer/xml-files.php' );
+require_once( __DIR__ . '/inc/classes/iterator/db/base.php' );
 
-require_once( __DIR__ . '/inc/classes/validator/base.php' );
-require_once( __DIR__ . '/inc/classes/validator/post.php' );
-require_once( __DIR__ . '/inc/classes/validator/post-content-regex.php' );
+require_once( __DIR__ . '/inc/classes/iterator/wp/base.php' );
+require_once( __DIR__ . '/inc/classes/iterator/wp/posts.php' );
 
-require_once( __DIR__ . '/inc/classes/import-type/interface.php' );
-require_once( __DIR__ . '/inc/classes/import-type/base.php' );
-require_once( __DIR__ . '/inc/classes/import-type/post.php' );
-require_once( __DIR__ . '/inc/classes/import-type/user.php' );
-require_once( __DIR__ . '/inc/classes/import-type/guest-author.php' );
-require_once( __DIR__ . '/inc/classes/import-type/attachment.php' );
-require_once( __DIR__ . '/inc/classes/import-type/term.php' );
+require_once( __DIR__ . '/inc/classes/iterator/files/base.php' );
+require_once( __DIR__ . '/inc/classes/iterator/files/json.php' );
+require_once( __DIR__ . '/inc/classes/iterator/files/xml.php' );
+
+require_once( __DIR__ . '/inc/classes/iterator/file/base.php' );
+require_once( __DIR__ . '/inc/classes/iterator/file/csv.php' );
+
+require_once( __DIR__ . '/inc/classes/inserter/base-interface.php' );
+require_once( __DIR__ . '/inc/classes/inserter/base.php' );
+
+require_once( __DIR__ . '/inc/classes/inserter/file/base.php' );
+require_once( __DIR__ . '/inc/classes/inserter/file/csv.php' );
+
+require_once( __DIR__ . '/inc/classes/inserter/wp/base.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/post.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/user.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/guest-author.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/attachment.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/term.php' );
+require_once( __DIR__ . '/inc/classes/inserter/wp/comment.php' );
 
 require_once( __DIR__ . '/inc/classes/master.php' );
 
+// Only incude CLI command file if WP_CLI is defined
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( __DIR__ . '/inc/classes/cli/hmci.php' );
 }
 
+// Initialise the master instance
 add_action( 'init', function() {
 	Master::get_instance();
 } );

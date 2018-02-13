@@ -2,14 +2,45 @@
 
 namespace HMCI;
 
+/**
+ * Singleton master class for HMCI
+ *
+ * Manages
+ * - Getting/setting of importer and validator instances
+ * - Initialisation of CLI command instances
+ *
+ * @package HMCI
+ */
 class Master {
 
+	/**
+	 * Master class instance
+	 *
+	 * @var Master
+	 */
 	static $instance   = false;
+
+
+	/**
+	 * Registered importer class name array
+	 *
+	 * @var array
+	 */
 	static $importers  = array();
+
+
+	/**
+	 * Registered validator class name array
+	 *
+	 * @var array
+	 */
 	static $validators = array();
 
-	protected function construct() {}
-
+	/**
+	 * Get the master class instance
+	 *
+	 * @return bool
+	 */
 	public static function get_instance() {
 
 		if ( ! static::$instance ) {
@@ -20,6 +51,12 @@ class Master {
 		return static::$instance;
 	}
 
+	/**
+	 * Add an importer to available importers
+	 *
+	 * @param $key
+	 * @param $class_name
+	 */
 	public static function add_importer( $key, $class_name ) {
 
 		if ( class_exists( $class_name ) ) {
@@ -27,19 +64,28 @@ class Master {
 		}
 	}
 
+	/**
+	 * Get all importers
+	 *
+	 * Returns assoc array of importer ID -> class name
+	 *
+	 * @return array
+	 */
 	public static function get_importers() {
 		return self::$importers;
 	}
 
 	/**
+	 * Get an importer instance from it's ID
+	 *
 	 * @param $key
-	 * @return bool | WP_Error | Importer\Base
+	 * @return bool | \WP_Error | Iterator\Base
 	 */
 	public static function get_importer_instance( $key, $args = array() ) {
 
 		$importers = static::get_importers();
 
-		if ( ! $importers[ $key ] ) {
+		if ( empty( $importers[ $key ] ) ) {
 			return false;
 		}
 
@@ -55,6 +101,12 @@ class Master {
 		return $importer;
 	}
 
+	/**
+	 * Add a validator to available validators
+	 *
+	 * @param $key
+	 * @param $class_name
+	 */
 	public static function add_validator( $key, $class_name ) {
 
 		if ( class_exists( $class_name ) ) {
@@ -62,13 +114,22 @@ class Master {
 		}
 	}
 
+	/**
+	 * Get all validator
+	 *
+	 * Returns assoc array of validator ID -> class name
+	 *
+	 * @return array
+	 */
 	public static function get_validators() {
 		return self::$validators;
 	}
 
 	/**
+	 * Get a validator instance from it's ID
+	 *
 	 * @param $key
-	 * @return bool | \WP_Error | Validator\Base
+	 * @return bool | \WP_Error | Iterator\Base
 	 */
 	public static function get_validator_instance( $key, $args = array() ) {
 
@@ -90,6 +151,10 @@ class Master {
 		return $importer;
 	}
 
+	/**
+	 * Initialise WP CLI command
+	 *
+	 */
 	protected static function init_cli() {
 
 		if ( defined( 'WP_CLI' ) && 'WP_CLI' ) {
