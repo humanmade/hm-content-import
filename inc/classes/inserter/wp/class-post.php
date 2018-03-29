@@ -56,17 +56,17 @@ class Post extends Base {
 	/**
 	 * Set meta data
 	 *
-	 * @param $term_id
+	 * @param $post_id
 	 * @param $meta_data
 	 */
-	static function set_meta( $term_id, $meta_data ) {
+	static function set_meta( $post_id, $meta_data ) {
 
 		foreach ( $meta_data as $meta_key => $meta_value ) {
 
 			if ( is_null( $meta_value ) ) {
-				delete_post_meta( $term_id, $meta_key );
+				delete_post_meta( $post_id, $meta_key );
 			} else {
-				update_post_meta( $term_id, $meta_key, $meta_value );
+				update_post_meta( $post_id, $meta_key, $meta_value );
 			}
 		}
 
