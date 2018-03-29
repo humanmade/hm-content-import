@@ -68,10 +68,10 @@ class Term extends Base {
 	/**
 	 * Set term meta
 	 *
-	 * @param $post_id
+	 * @param $term_id
 	 * @param $meta_data
 	 */
-	static function set_meta( $post_id, $meta_data ) {
+	static function set_meta( $term_id, $meta_data ) {
 
 		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
 			return;
@@ -80,9 +80,9 @@ class Term extends Base {
 		foreach ( $meta_data as $meta_key => $meta_value ) {
 
 			if ( is_null( $meta_value ) ) {
-				delete_term_meta( $post_id, $meta_key );
+				delete_term_meta( $term_id, $meta_key );
 			} else {
-				update_term_meta( $post_id, $meta_key, $meta_value );
+				update_term_meta( $term_id, $meta_key, $meta_value );
 			}
 		}
 
