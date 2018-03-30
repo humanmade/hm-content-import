@@ -12,12 +12,13 @@ class Guest_Author extends Post {
 	/**
 	 * Add guest author (post) object into the database
 	 *
-	 * @param array $user_data
-	 * @param bool $canonical_id
-	 * @param array $author_meta
-	 * @return null|string|\WP_Error
+	 * @param array $user_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool  $canonical_id
+	 * @param array $author_meta  Metadata to assign to the guest author.
+	 * @param array $options      Optional. Additional
+	 * @return int|string|\WP_Error
 	 */
-	static function insert( $user_data = array(), $canonical_id = false, $author_meta = array() ) {
+	static function insert( $user_data = [], $canonical_id = false, $author_meta = [], $options = [] ) {
 
 		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' ) ) {
 			return $current_id;
