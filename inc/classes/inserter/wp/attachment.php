@@ -15,9 +15,9 @@ class Attachment extends Post {
 	 *
 	 *
 	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
-	 * @param bool  $canonical_id
+	 * @param bool  $canonical_id Use an existing canonical ID.
 	 * @param array $post_meta    Metadata to assign to the post.
-	 * @param array $options       Additional
+	 * @param array $options      Additional data about the post.
 	 * @return array|int|object|\WP_Error
 	 */
 	static function insert( $post_data = [], $canonical_id = false, $post_meta = [], $options = [] ) {
