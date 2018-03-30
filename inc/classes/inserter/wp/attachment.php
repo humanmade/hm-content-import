@@ -13,18 +13,16 @@ class Attachment extends Post {
 	/**
 	 * Upload and add attachment object into the database
 	 *
-	 * @param array $path
-	 * @param array $post_data
-	 * @param bool $canonical_id
-	 * @param array $post_meta
-	 * @param null $file_type_override
-	 * @param bool $force_update_existing
+	 *
+	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool  $canonical_id
+	 * @param array $post_meta    Metadata to assign to the post.
+	 * @param array $options       Additional
 	 * @return array|int|object|\WP_Error
 	 */
-	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
-
+	static function insert( $post_data = [], $canonical_id = false, $post_meta = [], $options = [] ) {
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
-		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
+		$is_url      = filter_var( $options['path'], FILTER_VALIDATE_URL );
 
 		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			$post_data['ID'] = $current_id;
@@ -32,7 +30,7 @@ class Attachment extends Post {
 
         if ( ! empty( $post_data['ID'] ) ) {
 
-	        if ( $force_update_existing === true ) {
+	        if ( $options['force_update_existing'] === true ) {
 
 		        $post_id = wp_update_post( $post_data, true );
 
@@ -40,7 +38,7 @@ class Attachment extends Post {
 			        static::set_meta( $post_id, $post_meta );
 		        }
 
-		        static::set_import_path_meta( $post_data['ID'], $path );
+		        static::set_import_path_meta( $post_data['ID'], $options['path'] );
 	        }
 
 			return (int) $post_data['ID'];
@@ -48,7 +46,7 @@ class Attachment extends Post {
 
 		static::require_dependencies();
 
-		$file_array = static::prepare_file( $path, $is_url );
+		$file_array = static::prepare_file( $options['path'], $is_url );
 
 		if ( is_wp_error( $file_array ) ) {
 			return $file_array;
@@ -70,7 +68,7 @@ class Attachment extends Post {
 			static::set_canonical_id( $post_id, $canonical_id );
 		}
 
-		static::set_import_path_meta( $post_id, $path );
+		static::set_import_path_meta( $post_id, $options['path'] );
 
 		if ( $post_meta && is_array( $post_meta ) ) {
 			static::set_meta( $post_id, $post_meta );

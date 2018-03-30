@@ -12,12 +12,13 @@ class Post extends Base {
 	/**
 	 * Add post object to the database
 	 *
-	 * @param array $post_data
-	 * @param bool $canonical_id
-	 * @param array $post_meta
+	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool  $canonical_id
+	 * @param array $post_meta    Metadata to assign to the post.
+	 * @param array $options      Optional. Additional
 	 * @return int|\WP_Error
 	 */
-	static function insert( $post_data = array(), $canonical_id = false, $post_meta = array() ) {
+	static function insert( $post_data = [], $canonical_id = false, $post_meta = [], $options = [] ) {
 
 		if ( empty( $post_data['post_type'] ) ) {
 			$post_data['post_type'] = 'post';
