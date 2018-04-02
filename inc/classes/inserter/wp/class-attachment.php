@@ -24,7 +24,8 @@ class Attachment extends Post {
 	static function insert( $path, $post_data = [], $canonical_id = false, $post_meta = [], $file_type_override = null, $force_update_existing = true ) {
 
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
-		$is_url      = esc_url_raw( filter_var( $path, FILTER_VALIDATE_URL ) );
+		$path        = esc_url_raw( $path );
+		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
 
 		$current_id = static::get_id_from_canonical_id( $canonical_id );
 
