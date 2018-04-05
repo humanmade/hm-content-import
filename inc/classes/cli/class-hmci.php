@@ -17,6 +17,11 @@ use function HMCI\Utils\clear_local_object_cache as clear_local_cache;
 class HMCI extends \WP_CLI_Command {
 
 	/**
+	 * @var \cli\progress\Bar
+	 */
+	public static $progressbar;
+
+	/**
 	 *
 	 * Run a registered import script
 	 *
@@ -44,8 +49,10 @@ class HMCI extends \WP_CLI_Command {
 		$offset      = absint( $args_assoc['offset'] );
 		$total       = $count + $offset;
 
-		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %1$d Refers to number of items being imported
-		$progress = new \cli\progress\Bar( sprintf( __( 'Importing data for %1$s (%1$d items)', 'hmci' ), $import_type, $count ), $count, 100 );
+		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %2$d Refers to number of items being imported
+		$progress = \WP_CLI\Utils\make_progress_bar( sprintf( __( 'Importing data for %1$s (%2$d items)', 'hmci' ), $import_type, $count ), $count );
+		// Expose the progressbar so importers can use for incremental updates
+		self::$progressbar = $progress;
 
 		$progress->display();
 
