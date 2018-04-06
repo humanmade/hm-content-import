@@ -127,7 +127,7 @@ class Term extends Base {
 	 */
 	static function set_canonical_id( $id, $canonical_id, $taxonomy = null ) {
 
-		if ( ! $canonical_id || ! ! is_callable( 'update_term_meta' ) ) {
+		if ( ! $canonical_id || ! is_callable( 'update_term_meta' ) ) {
 			return;
 		}
 
