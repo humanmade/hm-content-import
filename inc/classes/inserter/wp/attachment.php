@@ -18,6 +18,9 @@ class Attachment extends Post {
 	 * @param bool  $canonical_id Use an existing canonical ID.
 	 * @param array $post_meta    Metadata to assign to the post.
 	 * @param array $options      Additional data about the post.
+	 *   Args
+	 *     - string path                  The local dir path or remote url of the file.
+	 *     - bool   force_update_existing Whether or not to update existing object.
 	 * @return array|int|object|\WP_Error
 	 */
 	static function insert( $post_data = [], $canonical_id = false, $post_meta = [], $options = [] ) {
