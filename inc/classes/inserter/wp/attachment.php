@@ -81,6 +81,25 @@ class Attachment extends Post {
 	}
 
 	/**
+	 * Upload and add attachment object into the database using a path.
+	 *
+	 * @param string $path         The local dir path or remote url of the file.
+	 * @param array  $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool   $canonical_id Use an existing canonical ID.
+	 * @param array  $post_meta    Metadata to assign to the post.
+	 * @param array  $options      Additional data about the post.
+	 *   Args
+	 *     - bool   force_update_existing Whether or not to update existing object.
+	 * @return array|int|object|\WP_Error
+	 */
+	public static function insert_from_path( $path, $post_data = [], $canonical_id = false, $post_meta = [], $options = []  ) {
+		// Ensure our path value is set appropriately.
+		$options['path'] = $path;
+
+		return static::insert( $post_data, $canonical_id, $post_meta, $options );
+	}
+
+	/**
 	 * Ensure files required for managing media uploads are included
 	 */
 	protected static function require_dependencies() {
