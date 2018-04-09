@@ -54,6 +54,7 @@ class Term extends Base {
 
 		// Canonical ID provided, set it
 		if ( $canonical_id ) {
+			$taxonomy = ! empty( $args['taxonomy'] ) ? $args['taxonomy'] : $taxonomy;
 			static::set_canonical_id( $term_id, $canonical_id, $taxonomy );
 		}
 
