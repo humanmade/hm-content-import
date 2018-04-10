@@ -50,6 +50,7 @@ class HMCI extends \WP_CLI_Command {
 		$total       = $count + $offset;
 
 		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %2$d Refers to number of items being imported
+		/** @var \cli\progress\Bar $progress */
 		$progress = \WP_CLI\Utils\make_progress_bar( sprintf( __( 'Importing data for %1$s (%2$d items)', 'hmci' ), $import_type, $count ), $count );
 		// Expose the progressbar so importers can use for incremental updates
 		self::$progressbar = $progress;
@@ -68,8 +69,11 @@ class HMCI extends \WP_CLI_Command {
 		while ( ( $offset + $current_offset ) < $total && $items ) {
 
 			$importer->iterate_items( $items );
+			// Only tick if the offset hasn't been changed by the importer
+			if ( $progress->current() === $current_offset ) {
+				$progress->tick( count( $items ) );
+			}
 			$current_offset += count( $items );
-			$progress->tick( count( $items ) );
 
 			$this->save_progress( 'importer', $import_type, $current_offset );
 			clear_local_cache();
