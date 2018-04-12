@@ -20,7 +20,7 @@ class Guest_Author extends Post {
 	 */
 	static function insert( $user_data = [], $canonical_id = false, $author_meta = [], $options = [] ) {
 
-		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' ) ) {
+		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			return $current_id;
 		}
 
@@ -146,6 +146,30 @@ class Guest_Author extends Post {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get post ID from canonical ID
+	 *
+	 * @param $canonical_id
+	 * @param string $post_type
+	 * @return null|string
+	 */
+	static function get_id_from_canonical_id( $canonical_id, $post_type = 'guest-author' ) {
+
+		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
+	}
+
+	/**
+	 * Set canonical ID meta
+	 *
+	 * @param $id
+	 * @param $canonical_id
+	 * @param string $post_type
+	 */
+	static function set_canonical_id( $id, $canonical_id, $post_type = 'guest-author' ) {
+
+		parent::set_canonical_id( $id, $canonical_id, $post_type );
 	}
 
 }

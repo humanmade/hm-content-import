@@ -197,6 +197,30 @@ class Attachment extends Post {
 	}
 
 	/**
+	 * Get post ID from canonical ID
+	 *
+	 * @param $canonical_id
+	 * @param string $post_type
+	 * @return null|string
+	 */
+	static function get_id_from_canonical_id( $canonical_id, $post_type = 'attachment' ) {
+
+		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
+	}
+
+	/**
+	 * Set canonical ID meta
+	 *
+	 * @param $id
+	 * @param $canonical_id
+	 * @param string $post_type
+	 */
+	static function set_canonical_id( $id, $canonical_id, $post_type = 'attachment' ) {
+
+		parent::set_canonical_id( $id, $canonical_id, $post_type );
+	}
+
+	/**
 	 * Set import path meta
 	 *
 	 * @param $id
