@@ -306,7 +306,8 @@ class HMCI extends \WP_CLI_Command {
 	}
 
 	protected function get_progress_id( $type, $name ) {
-		return md5( $type . '~' . $name . '~' . $this->args_assoc['progress_id'] );
+		$progress_id = $this->args_assoc['progress_id'] ? '~' . $this->args_assoc['progress_id'] : null;
+		return md5( $type . '~' . $name . $progress_id );
 	}
 
 	/**
