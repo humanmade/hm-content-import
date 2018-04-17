@@ -22,11 +22,9 @@ class HMCI extends \WP_CLI_Command {
 	public static $progressbar;
 
 	/**
-	 * Progress ID to keep a unique value per runs, when threading
-	 *
-	 * @var string
+	 * @var array
 	 */
-	public static $progress_id;
+	protected $args_assoc;
 
 	/**
 	 *
@@ -36,7 +34,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	public function import( $args, $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, [
+		$this->args_assoc = $args_assoc = wp_parse_args( $args_assoc, [
 			'count'                       => 0,
 			'offset'                      => 0,
 			'resume'                      => false,
@@ -45,12 +43,10 @@ class HMCI extends \WP_CLI_Command {
 			'disable_trackbacks'          => true,
 			'disable_intermediate_images' => false,
 			'define_wp_importing'         => true,
-			'progress_id'                 => '',
+			'progress_id'                 => '', // Progress ID to keep a unique value per run, when threading
 		] );
 
 		$this->manage_global_settings( $args_assoc );
-
-		self::$progress_id = $args_assoc['progress_id'];
 
 		$import_type = $args[0];
 		$importer    = $this->get_importer( $import_type, $args_assoc );
@@ -310,7 +306,7 @@ class HMCI extends \WP_CLI_Command {
 	}
 
 	protected function get_progress_id( $type, $name ) {
-		return md5( $type . '~' . $name . '~' . self::$progress_id );
+		return md5( $type . '~' . $name . '~' . $this->args_assoc['progress_id'] );
 	}
 
 	/**
