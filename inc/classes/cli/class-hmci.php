@@ -81,6 +81,10 @@ class HMCI extends \WP_CLI_Command {
 			}
 			$current_offset += count( $items );
 
+			if ( ( $offset + $current_offset ) >= $total ) {
+				break;
+			}
+
 			$this->save_progress( 'importer', $import_type, $current_offset );
 			clear_local_cache();
 
