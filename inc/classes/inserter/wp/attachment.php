@@ -13,18 +13,19 @@ class Attachment extends Post {
 	/**
 	 * Upload and add attachment object into the database
 	 *
-	 * @param array $path
-	 * @param array $post_data
-	 * @param bool $canonical_id
-	 * @param array $post_meta
-	 * @param null $file_type_override
-	 * @param bool $force_update_existing
+	 *
+	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool  $canonical_id Use an existing canonical ID.
+	 * @param array $post_meta    Metadata to assign to the post.
+	 * @param array $options      Additional data about the post.
+	 *   Args
+	 *     - string path                  The local dir path or remote url of the file.
+	 *     - bool   force_update_existing Whether or not to update existing object.
 	 * @return array|int|object|\WP_Error
 	 */
-	static function insert( $path, $post_data = array(), $canonical_id = false, $post_meta = array(), $file_type_override = null, $force_update_existing = true ) {
-
+	static function insert( $post_data = [], $canonical_id = false, $post_meta = [], $options = [] ) {
 		$post_parent = isset( $post_data['post_parent'] ) ? $post_data['post_parent'] : 0;
-		$is_url      = filter_var( $path, FILTER_VALIDATE_URL );
+		$is_url      = filter_var( $options['path'], FILTER_VALIDATE_URL );
 
 		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			$post_data['ID'] = $current_id;
@@ -32,7 +33,7 @@ class Attachment extends Post {
 
         if ( ! empty( $post_data['ID'] ) ) {
 
-	        if ( $force_update_existing === true ) {
+	        if ( $options['force_update_existing'] === true ) {
 
 		        $post_id = wp_update_post( $post_data, true );
 
@@ -40,7 +41,7 @@ class Attachment extends Post {
 			        static::set_meta( $post_id, $post_meta );
 		        }
 
-		        static::set_import_path_meta( $post_data['ID'], $path );
+		        static::set_import_path_meta( $post_data['ID'], $options['path'] );
 	        }
 
 			return (int) $post_data['ID'];
@@ -48,7 +49,7 @@ class Attachment extends Post {
 
 		static::require_dependencies();
 
-		$file_array = static::prepare_file( $path, $is_url );
+		$file_array = static::prepare_file( $options['path'], $is_url );
 
 		if ( is_wp_error( $file_array ) ) {
 			return $file_array;
@@ -67,16 +68,35 @@ class Attachment extends Post {
 		}
 
 		if ( $canonical_id ) {
-			static::set_canonical_id( $post_id, $canonical_id );
+			static::set_canonical_id( $post_id, $canonical_id, 'attachment' );
 		}
 
-		static::set_import_path_meta( $post_id, $path );
+		static::set_import_path_meta( $post_id, $options['path'] );
 
 		if ( $post_meta && is_array( $post_meta ) ) {
 			static::set_meta( $post_id, $post_meta );
 		}
 
 		return $post_id;
+	}
+
+	/**
+	 * Upload and add attachment object into the database using a path.
+	 *
+	 * @param string $path         The local dir path or remote url of the file.
+	 * @param array  $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool   $canonical_id Use an existing canonical ID.
+	 * @param array  $post_meta    Metadata to assign to the post.
+	 * @param array  $options      Additional data about the post.
+	 *   Args
+	 *     - bool   force_update_existing Whether or not to update existing object.
+	 * @return array|int|object|\WP_Error
+	 */
+	public static function insert_from_path( $path, $post_data = [], $canonical_id = false, $post_meta = [], $options = []  ) {
+		// Ensure our path value is set appropriately.
+		$options['path'] = $path;
+
+		return static::insert( $post_data, $canonical_id, $post_meta, $options );
 	}
 
 	/**
@@ -167,34 +187,37 @@ class Attachment extends Post {
 	/**
 	 * Check if attachment exists in the database
 	 *
-	 * @param $canonical_id
+	 * @param mixed  $canonical_id
+	 * @param string $post_type
 	 * @return bool
 	 */
-	static function exists( $canonical_id ) {
+	static function exists( $canonical_id, $post_type = 'attachment' ) {
 
-		return (bool) static::get_id_from_canonical_id( $canonical_id );
+		return (bool) static::get_id_from_canonical_id( $canonical_id, $post_type );
 	}
 
 	/**
-	 * Get attachment from canonical ID if it exists in the database
+	 * Get post ID from canonical ID
 	 *
 	 * @param $canonical_id
+	 * @param string $post_type
 	 * @return null|string
 	 */
-	static function get_id_from_canonical_id( $canonical_id  ) {
+	static function get_id_from_canonical_id( $canonical_id, $post_type = 'attachment' ) {
 
-		return parent::get_id_from_canonical_id( $canonical_id, 'attachment' );
+		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
 	}
 
 	/**
-	 * Set attachment canonical ID meta
+	 * Set canonical ID meta
 	 *
 	 * @param $id
 	 * @param $canonical_id
+	 * @param string $post_type
 	 */
-	static function set_canonical_id( $id, $canonical_id ) {
+	static function set_canonical_id( $id, $canonical_id, $post_type = 'attachment' ) {
 
-		parent::set_canonical_id( $id, $canonical_id, 'attachment' );
+		parent::set_canonical_id( $id, $canonical_id, $post_type );
 	}
 
 	/**
