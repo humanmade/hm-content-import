@@ -22,6 +22,11 @@ class HMCI extends \WP_CLI_Command {
 	public static $progressbar;
 
 	/**
+	 * @var array
+	 */
+	protected $args_assoc;
+
+	/**
 	 *
 	 * Run a registered import script
 	 *
@@ -29,7 +34,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	public function import( $args, $args_assoc ) {
 
-		$args_assoc = wp_parse_args( $args_assoc, [
+		$this->args_assoc = $args_assoc = wp_parse_args( $args_assoc, [
 			'count'                       => 0,
 			'offset'                      => 0,
 			'resume'                      => false,
@@ -38,6 +43,7 @@ class HMCI extends \WP_CLI_Command {
 			'disable_trackbacks'          => true,
 			'disable_intermediate_images' => false,
 			'define_wp_importing'         => true,
+			'thread_id'                   => '', // Thread ID to keep a unique progress value per each, when threading
 		] );
 
 		$this->manage_global_settings( $args_assoc );
@@ -50,6 +56,7 @@ class HMCI extends \WP_CLI_Command {
 		$total       = $count + $offset;
 
 		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %2$d Refers to number of items being imported
+		/** @var \cli\progress\Bar $progress */
 		$progress = \WP_CLI\Utils\make_progress_bar( sprintf( __( 'Importing data for %1$s (%2$d items)', 'hmci' ), $import_type, $count ), $count );
 		// Expose the progressbar so importers can use for incremental updates
 		self::$progressbar = $progress;
@@ -68,8 +75,11 @@ class HMCI extends \WP_CLI_Command {
 		while ( ( $offset + $current_offset ) < $total && $items ) {
 
 			$importer->iterate_items( $items );
+			// Only tick if the offset hasn't been changed by the importer
+			if ( $progress->current() === $current_offset ) {
+				$progress->tick( count( $items ) );
+			}
 			$current_offset += count( $items );
-			$progress->tick( count( $items ) );
 
 			$this->save_progress( 'importer', $import_type, $current_offset );
 			clear_local_cache();
@@ -295,6 +305,11 @@ class HMCI extends \WP_CLI_Command {
 		}
 	}
 
+	protected function get_thread_id( $type, $name ) {
+		$thread_id = $this->args_assoc['thread_id'] ? '~' . $this->args_assoc['thread_id'] : null;
+		return md5( $type . '~' . $name . $thread_id );
+	}
+
 	/**
 	 * Save progress of a given script
 	 *
@@ -304,7 +319,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function save_progress( $type, $name, $count ) {
 
-		update_option( 'hmci_pg_' . md5( $type . '~' . $name ), $count );
+		update_option( 'hmci_pg_' . $this->get_thread_id( $type, $name ), $count, false );
 	}
 
 	/**
@@ -315,7 +330,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function clear_progress( $type, $name ) {
 
-		delete_option( 'hmci_pg_' . md5( $type . '~' . $name ) );
+		delete_option( 'hmci_pg_' . $this->get_thread_id( $type, $name ) );
 	}
 
 	/**
@@ -327,7 +342,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function get_progress( $type, $name ) {
 
-		return absint( get_option( 'hmci_pg_' . md5( $type . '~' . $name ), 0 ) );
+		return absint( get_option( 'hmci_pg_' . $this->get_thread_id( $type, $name ), 0 ) );
 	}
 
 	/**
