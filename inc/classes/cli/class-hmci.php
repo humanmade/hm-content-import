@@ -22,6 +22,13 @@ class HMCI extends \WP_CLI_Command {
 	public static $progressbar;
 
 	/**
+	 * Progress ID to keep a unique value per runs, when threading
+	 *
+	 * @var string
+	 */
+	public static $progress_id;
+
+	/**
 	 *
 	 * Run a registered import script
 	 *
@@ -38,9 +45,12 @@ class HMCI extends \WP_CLI_Command {
 			'disable_trackbacks'          => true,
 			'disable_intermediate_images' => false,
 			'define_wp_importing'         => true,
+			'progress_id'                 => '',
 		] );
 
 		$this->manage_global_settings( $args_assoc );
+
+		self::$progress_id = $args_assoc['progress_id'];
 
 		$import_type = $args[0];
 		$importer    = $this->get_importer( $import_type, $args_assoc );
@@ -299,6 +309,10 @@ class HMCI extends \WP_CLI_Command {
 		}
 	}
 
+	protected function get_progress_id( $type, $name ) {
+		return md5( $type . '~' . $name . '~' . self::$progress_id );
+	}
+
 	/**
 	 * Save progress of a given script
 	 *
@@ -308,7 +322,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function save_progress( $type, $name, $count ) {
 
-		update_option( 'hmci_pg_' . md5( $type . '~' . $name ), $count );
+		update_option( 'hmci_pg_' . $this->get_progress_id( $type, $name ), $count, false );
 	}
 
 	/**
@@ -319,7 +333,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function clear_progress( $type, $name ) {
 
-		delete_option( 'hmci_pg_' . md5( $type . '~' . $name ) );
+		delete_option( 'hmci_pg_' . $this->get_progress_id( $type, $name ) );
 	}
 
 	/**
@@ -331,7 +345,7 @@ class HMCI extends \WP_CLI_Command {
 	 */
 	protected function get_progress( $type, $name ) {
 
-		return absint( get_option( 'hmci_pg_' . md5( $type . '~' . $name ), 0 ) );
+		return absint( get_option( 'hmci_pg_' . $this->get_progress_id( $type, $name ), 0 ) );
 	}
 
 	/**
