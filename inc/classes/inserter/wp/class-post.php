@@ -93,11 +93,11 @@ class Post extends Base {
 	 */
 	static function get_id_from_canonical_id( $canonical_id, $post_type = 'post' ) {
 
-		$meta_key = sprintf( 'hmci_lookup_%s', md5( $post_type . $canonical_id ) );
+		$meta_key = sprintf( 'hmci_canonical_id_' . $post_type );
 
 		global $wpdb;
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s", $meta_key ) );
+		return $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = %s", $meta_key, $canonical_id ) );
 	}
 
 	/**
@@ -114,7 +114,6 @@ class Post extends Base {
 		}
 
 		update_post_meta( $id, static::get_canonical_id_key() . '_' . $post_type, $canonical_id );
-		update_post_meta( $id, sprintf( 'hmci_lookup_%s', md5( $post_type . $canonical_id ) ), 1 );
 	}
 
 }
