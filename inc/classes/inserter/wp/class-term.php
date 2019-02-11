@@ -62,7 +62,7 @@ class Term extends Base {
 			static::set_meta( $term_id, $term_meta );
 		}
 
-		return $term_id;
+		return absint( $term_id );
 	}
 
 	/**
