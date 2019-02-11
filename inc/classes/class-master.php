@@ -18,23 +18,21 @@ class Master {
 	 *
 	 * @var Master
 	 */
-	static $instance   = false;
-
+	static $instance = false;
 
 	/**
 	 * Registered importer class name array
 	 *
 	 * @var array
 	 */
-	static $importers  = array();
-
+	static $importers = [];
 
 	/**
 	 * Registered validator class name array
 	 *
 	 * @var array
 	 */
-	static $validators = array();
+	static $validators = [];
 
 	/**
 	 * Get the master class instance
@@ -60,7 +58,7 @@ class Master {
 	public static function add_importer( $key, $class_name ) {
 
 		if ( class_exists( $class_name ) ) {
-			self::$importers[$key] = $class_name;
+			self::$importers[ $key ] = $class_name;
 		}
 	}
 
@@ -81,7 +79,7 @@ class Master {
 	 * @param $key
 	 * @return bool | \WP_Error | Iterator\Base
 	 */
-	public static function get_importer_instance( $key, $args = array() ) {
+	public static function get_importer_instance( $key, $args = [] ) {
 
 		$importers = static::get_importers();
 
@@ -110,7 +108,7 @@ class Master {
 	public static function add_validator( $key, $class_name ) {
 
 		if ( class_exists( $class_name ) ) {
-			self::$validators[$key] = $class_name;
+			self::$validators[ $key ] = $class_name;
 		}
 	}
 
@@ -131,7 +129,7 @@ class Master {
 	 * @param $key
 	 * @return bool | \WP_Error | Iterator\Base
 	 */
-	public static function get_validator_instance( $key, $args = array() ) {
+	public static function get_validator_instance( $key, $args = [] ) {
 
 		$importers = static::get_validators();
 

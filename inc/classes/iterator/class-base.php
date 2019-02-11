@@ -2,6 +2,8 @@
 
 namespace HMCI\Iterator;
 
+use function HMCI\Utils\clear_local_object_cache as clear_local_cache;
+
 /**
  * Base  iterator class
  * Iterates over provided objects for processing
@@ -23,7 +25,7 @@ abstract class Base implements Base_Interface {
 	 *
 	 * @var array
 	 */
-	var $args     = array();
+	var $args = [];
 
 	/**
 	 * Is the iterator being used as a validator or an importer?
@@ -38,7 +40,7 @@ abstract class Base implements Base_Interface {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $args = array(), $type = 'importer' ) {
+	public function __construct( $args = [], $type = 'importer' ) {
 
 		$this->type = $type;
 
@@ -62,7 +64,7 @@ abstract class Base implements Base_Interface {
 			$offset += count( $items );
 
 			if ( $this->args['auto_clear_cache'] ) {
-				$this->clear_cache();
+				clear_local_cache();
 			}
 		}
 
@@ -94,13 +96,13 @@ abstract class Base implements Base_Interface {
 	 */
 	public function iterate_item( $item ) {
 
-		$item   = $this->parse_item( $item );
+		$item = $this->parse_item( $item );
 
 		if ( ! $item ) {
 			return false;
 		}
 
-		$id     = $this->process_item( $item );
+		$id = $this->process_item( $item );
 
 		if ( is_wp_error( $id ) ) {
 			$this->debug( $id );
@@ -126,30 +128,6 @@ abstract class Base implements Base_Interface {
 	}
 
 	/**
-	 * Clear local cache (helps vs memory leaks if object caching is enabled)
-	 */
-	protected function clear_cache() {
-
-		global $wpdb, $wp_object_cache;
-
-		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
-
-		if ( ! is_object( $wp_object_cache ) ) {
-			return;
-		}
-
-		$wp_object_cache->group_ops = array();
-		//$wp_object_cache->stats = array();
-		$wp_object_cache->memcache_debug = array();
-		$wp_object_cache->cache = array();
-
-		if ( is_callable( $wp_object_cache, '__remoteset' ) ) {
-			$wp_object_cache->__remoteset(); // important
-		}
-
-	}
-
-	/**
 	 * Parse and validate instance arguments
 	 *
 	 * @param $args
@@ -159,7 +137,7 @@ abstract class Base implements Base_Interface {
 
 		$this->args = $args;
 
-		foreach( $this->get_args() as $arg => $data ) {
+		foreach ( $this->get_args() as $arg => $data ) {
 
 			// Arg is not set but has default, define it
 			if ( ! isset( $this->args[ $arg ] ) && isset( $data['default'] ) ) {
@@ -168,17 +146,22 @@ abstract class Base implements Base_Interface {
 
 			// Missing required arg
 			if ( ! empty( $data['required'] ) && ! array_key_exists( $arg, $this->args ) ) {
+				// translators: %s variable refers to the missing arg identifier, i.e. db_name.
 				return new \WP_Error( 'hmci_missing_required_arg', sprintf( __( 'Required arg: %s is missing', 'hmci' ), $arg ) );
 			}
 
 			// Arg value not in whitelist
 			if ( ! empty( $data['values'] ) && is_array( $data['values'] ) && ! in_array( $this->args[ $arg ], $data['values'] ) ) {
-				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %s has the following options: %s', 'hmci' ), $arg, implode( ', ', $data['values'] ) ) );
+
+				// translators: %1$s refers to the missing arg identifier, i.e. db_name. %2$s refers to a comma separated list of accepted argument values.
+				return new \WP_Error( 'hmci_invalid_arg_value', sprintf( __( 'Invalid argument value. %1$s has the following options: %2$s', 'hmci' ), $arg, implode( ', ', $data['values'] ) ) );
 			}
 
 			// Arg type is numeric but non-numeric value passed
 			if ( array_key_exists( $arg, $this->args ) && ! empty( $data['type'] ) && $data['type'] === 'numeric' && ! is_numeric( $this->args[ $arg ] ) ) {
-				return new \WP_Error( 'hmci_invalid_arg_type', sprintf( __( 'Invalid argument value. %s has must be of type %s', 'hmci' ), $arg, $data['type'] ) );
+
+				// translators: %1$s refers to the missing arg identifier, i.e. db_name. %2$s refers to a variable, type, i.e. 'string'
+				return new \WP_Error( 'hmci_invalid_arg_type', sprintf( __( 'Invalid argument value. %1$s has must be of type %2$s', 'hmci' ), $arg, $data['type'] ) );
 			}
 		}
 
@@ -191,38 +174,38 @@ abstract class Base implements Base_Interface {
 	 * @return array
 	 */
 	public static function get_args() {
-		$global_args = array(
-			'items_per_loop'    => array(
-				'default'       => 100,
-				'type'          => 'numeric',
-				'description'   => __( 'Number of items to be processed on a single loop, larger are loops are more efficient but more memory intensive.', 'hmci' )
-			),
-			'verbose'           => array(
-				'default'       => true,
-				'type'          => 'bool',
-				'description'   => __( 'Dictate level of outputting', 'hmci' )
-			),
-			'auto_clear_cache'  => array(
-				'default'       => true,
-				'type'          => 'bool',
-				'description'   => __( 'Automatically clear local memory cache on each loop - helps prevent memory leak issues', 'hmci' )
-			),
-			'count'  => array(
-				'default'       => 0,
-				'type'          => 'numeric',
-				'description'   => __( 'Maximum number of items to be imported on execution', 'hmci' )
-			),
-			'offset'  => array(
-				'default'       => 0,
-				'type'          => 'numeric',
-				'description'   => __( 'Offset to begin importing at', 'hmci' )
-			),
-			'resume'  => array(
-				'default'       => false,
-				'type'          => 'bool',
-				'description'   => __( 'Attempt to resume script (if there was a failure during last execution)', 'hmci' )
-			)
-		);
+		$global_args = [
+			'items_per_loop'   => [
+				'default'     => 100,
+				'type'        => 'numeric',
+				'description' => __( 'Number of items to be processed on a single loop, larger are loops are more efficient but more memory intensive.', 'hmci' ),
+			],
+			'verbose'          => [
+				'default'     => true,
+				'type'        => 'bool',
+				'description' => __( 'Dictate level of outputting', 'hmci' ),
+			],
+			'auto_clear_cache' => [
+				'default'     => true,
+				'type'        => 'bool',
+				'description' => __( 'Automatically clear local memory cache on each loop - helps prevent memory leak issues', 'hmci' ),
+			],
+			'count'            => [
+				'default'     => 0,
+				'type'        => 'numeric',
+				'description' => __( 'Maximum number of items to be imported on execution', 'hmci' ),
+			],
+			'offset'           => [
+				'default'     => 0,
+				'type'        => 'numeric',
+				'description' => __( 'Offset to begin importing at', 'hmci' ),
+			],
+			'resume'           => [
+				'default'     => false,
+				'type'        => 'bool',
+				'description' => __( 'Attempt to resume script (if there was a failure during last execution)', 'hmci' ),
+			],
+		];
 
 		return array_merge( $global_args, static::get_iterator_args(), static::get_custom_args(), static::get_importer_args(), static::get_validator_args() );
 	}
@@ -244,7 +227,7 @@ abstract class Base implements Base_Interface {
 	 */
 	public static function get_custom_args() {
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -254,7 +237,7 @@ abstract class Base implements Base_Interface {
 	 */
 	public static function get_iterator_args() {
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -264,28 +247,28 @@ abstract class Base implements Base_Interface {
 	 */
 	public static function get_importer_args() {
 
-		return array(
-			'disable_global_terms'  => array(
-				'default'       => true,
-				'type'          => 'bool',
-				'description'   => __( 'For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import', 'hmci' )
-			),
-			'disable_trackbacks'  => array(
-				'default'       => true,
-				'type'          => 'bool',
-				'description'   => __( 'Disable WordPress trackbacks (avoids cron overflow for large imports)', 'hmci' )
-			),
-			'disable_intermediate_images'  => array(
-				'default'       => false,
-				'type'          => 'bool',
-				'description'   => __( 'Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)', 'hmci' )
-			),
-			'define_wp_importing'  => array(
-				'default'       => true,
-				'type'          => 'bool',
-				'description'   => __( 'Define the WP_IMPORTING flag in WordPress', 'hmci' )
-			),
-		);
+		return [
+			'disable_global_terms'        => [
+				'default'     => true,
+				'type'        => 'bool',
+				'description' => __( 'For WPCOMVIP disable global terms. Global terms on VIP installs can cause issues for import', 'hmci' ),
+			],
+			'disable_trackbacks'          => [
+				'default'     => true,
+				'type'        => 'bool',
+				'description' => __( 'Disable WordPress trackbacks (avoids cron overflow for large imports)', 'hmci' ),
+			],
+			'disable_intermediate_images' => [
+				'default'     => false,
+				'type'        => 'bool',
+				'description' => __( 'Disables generation of intermediate image sizes during import (preferable for sites using 3rd party image manipulation)', 'hmci' ),
+			],
+			'define_wp_importing'         => [
+				'default'     => true,
+				'type'        => 'bool',
+				'description' => __( 'Define the WP_IMPORTING flag in WordPress', 'hmci' ),
+			],
+		];
 	}
 
 	/**
@@ -295,7 +278,7 @@ abstract class Base implements Base_Interface {
 	 */
 	public static function get_validator_args() {
 
-		return array();
+		return [];
 	}
 
 	/**

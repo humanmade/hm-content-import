@@ -21,7 +21,7 @@ abstract class JSON extends Base {
 	protected function get_file_contents( $file ) {
 
 		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
-			return array();
+			return [];
 		}
 
 		$json = file_get_contents( $file );

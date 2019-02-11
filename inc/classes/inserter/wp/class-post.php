@@ -24,8 +24,13 @@ class Post extends Base {
 			$post_data['post_type'] = 'post';
 		}
 
-		if ( empty( $post_data['ID'] ) && $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, $post_data['post_type'] ) ) {
-			$post_data['ID'] = $current_id;
+		if ( empty( $post_data['ID'] ) && $canonical_id ) {
+
+			$current_id = static::get_id_from_canonical_id( $canonical_id, $post_data['post_type'] );
+
+			if ( $current_id ) {
+				$post_data['ID'] = $current_id;
+			}
 		}
 
 		if ( ! empty( $post_data['ID'] ) ) {
@@ -109,7 +114,7 @@ class Post extends Base {
 			return;
 		}
 
-		update_post_meta( $id, static::get_canonical_id_key() . '_' . $post_type , $canonical_id );
+		update_post_meta( $id, static::get_canonical_id_key() . '_' . $post_type, $canonical_id );
 		update_post_meta( $id, sprintf( 'hmci_lookup_%s', md5( $post_type . $canonical_id ) ), 1 );
 	}
 

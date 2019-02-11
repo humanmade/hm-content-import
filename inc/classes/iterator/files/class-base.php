@@ -22,14 +22,14 @@ abstract class Base extends \HMCI\Iterator\Base {
 	 */
 	public function get_items( $offset, $count ) {
 
-		$files       = $this->filter_files( $this->get_files_in_path() );
+		$files = $this->filter_files( $this->get_files_in_path() );
 
 		if ( is_wp_error( $files ) ) {
 			return $files;
 		}
 
 		$files_paged = array_slice( $files, $offset, $count );
-		$items       = array();
+		$items       = [];
 
 		foreach ( $files_paged as $file_path ) {
 
@@ -72,7 +72,7 @@ abstract class Base extends \HMCI\Iterator\Base {
 	protected function get_files_in_path() {
 
 		$path        = $this->args['export_path'];
-		$check_paths = array( $path, ABSPATH . '/' . $path, ABSPATH . '../' . $path );
+		$check_paths = [ $path, ABSPATH . '/' . $path, ABSPATH . '../' . $path ];
 		$path_found  = '';
 
 		foreach ( $check_paths as $path ) {
@@ -83,7 +83,8 @@ abstract class Base extends \HMCI\Iterator\Base {
 		}
 
 		if ( ! $path_found ) {
-			throw new \Exception( __( sprintf( 'Path not found. Attempted paths: %s', implode( ', ', $check_paths ) ), 'hmci' ), 'hmci_export_path_not_found' );
+			// translators: %s variable references a list of comma separated file paths
+			throw new \Exception( sprintf( __( 'Path not found. Attempted paths: %s', 'hmci' ), implode( ', ', $check_paths ) ), 'hmci_export_path_not_found' );
 		}
 
 		if ( is_dir( $path_found ) ) {
@@ -96,7 +97,7 @@ abstract class Base extends \HMCI\Iterator\Base {
 
 		} else {
 
-			$files = array( $path_found );
+			$files = [ $path_found ];
 		}
 
 		return $files;
@@ -109,13 +110,13 @@ abstract class Base extends \HMCI\Iterator\Base {
 	 */
 	public static function get_iterator_args() {
 
-		return array(
-			'export_path' => array(
-				'required'      => true,
-				'type'          => 'string',
-				'description'   => __( 'Export path, either absolute path or relative ABSPATH', 'hmci' )
-			)
-		);
+		return [
+			'export_path' => [
+				'required'    => true,
+				'type'        => 'string',
+				'description' => __( 'Export path, either absolute path or relative ABSPATH', 'hmci' ),
+			],
+		];
 	}
 
 	/**

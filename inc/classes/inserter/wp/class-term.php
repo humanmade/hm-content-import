@@ -19,26 +19,25 @@ class Term extends Base {
 	 * @param array $term_meta
 	 * @return array|bool|int|null|string|\WP_Error|\WP_Term
 	 */
-	static function insert( $term, $taxonomy, $canonical_id = false, $args = array(), $term_meta = array() ) {
+	static function insert( $term, $taxonomy, $canonical_id = false, $args = [], $term_meta = [] ) {
+
+		$current_id = static::get_id_from_canonical_id( $canonical_id, $taxonomy );
 
 		// Got term by canonical ID marker
-		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id, $taxonomy )  ) {
-			$term_id     = $current_id;
-
-		// Got term by name
-		} else  {
+		if ( $canonical_id && $current_id ) {
+			$term_id = $current_id;
+			// Got term by name
+		} else {
 			$term_exists = get_term_by( 'name', $term, $taxonomy );
 			$term_id     = ! empty( $term_exists->term_id ) ? $term_exists->term_id : $term_exists;
 		}
 
-		// term already exists, update it
+		// Term already exists, update it
 		if ( ! is_wp_error( $term_id ) && $term_id && $args ) {
-
 			$term_id = wp_update_term( $term_id, $taxonomy, $args );
 
-		// term doesn't exist, insert it
+			// Term doesn't exist, insert it
 		} elseif ( ! is_wp_error( $term_id ) && ! $term_id ) {
-
 			$term_id = wp_insert_term( $term, $taxonomy, $args );
 		}
 
@@ -49,7 +48,7 @@ class Term extends Base {
 		// Get actual term ID
 		if ( ! empty( $term_id['term_id'] ) ) {
 			$term_id = $term_id['term_id'];
-		} else if ( ! is_numeric( $term_id ) ) {
+		} elseif ( ! is_numeric( $term_id ) ) {
 			return new \WP_Error( 'Unexpected term response object' );
 		}
 
@@ -69,10 +68,10 @@ class Term extends Base {
 	/**
 	 * Set term meta
 	 *
-	 * @param $post_id
+	 * @param $term_id
 	 * @param $meta_data
 	 */
-	static function set_meta( $post_id, $meta_data ) {
+	static function set_meta( $term_id, $meta_data ) {
 
 		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
 			return;
@@ -81,9 +80,9 @@ class Term extends Base {
 		foreach ( $meta_data as $meta_key => $meta_value ) {
 
 			if ( is_null( $meta_value ) ) {
-				delete_term_meta( $post_id, $meta_key );
+				delete_term_meta( $term_id, $meta_key );
 			} else {
-				update_term_meta( $post_id, $meta_key, $meta_value );
+				update_term_meta( $term_id, $meta_key, $meta_value );
 			}
 		}
 
@@ -128,7 +127,7 @@ class Term extends Base {
 	 */
 	static function set_canonical_id( $id, $canonical_id, $taxonomy = null ) {
 
-		if ( ! $canonical_id || ! ! is_callable( 'update_term_meta' ) ) {
+		if ( ! $canonical_id || ! is_callable( 'update_term_meta' ) ) {
 			return;
 		}
 
@@ -143,7 +142,7 @@ class Term extends Base {
 	 */
 	static function get_canonical_id_key_suffixed( $taxonomy = null ) {
 
-		return ( $taxonomy ) ? static::get_canonical_id_key() . '_' . $taxonomy :  static::get_canonical_id_key();
+		return ( $taxonomy ) ? static::get_canonical_id_key() . '_' . $taxonomy : static::get_canonical_id_key();
 	}
 
 }
