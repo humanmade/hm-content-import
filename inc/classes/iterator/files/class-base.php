@@ -84,7 +84,7 @@ abstract class Base extends \HMCI\Iterator\Base {
 
 		if ( ! $path_found ) {
 			// translators: %s variable references a list of comma separated file paths
-			throw new \Exception( sprintf( __( 'Path not found. Attempted paths: %s', 'hmci' ), implode( ', ', $check_paths ) ), 'hmci_export_path_not_found' );
+			throw new \Exception( sprintf( __( 'Path not found. Attempted paths: %s', 'hmci' ), implode( ', ', $check_paths ) ), 0 );
 		}
 
 		if ( is_dir( $path_found ) ) {
