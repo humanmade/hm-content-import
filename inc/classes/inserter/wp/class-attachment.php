@@ -34,7 +34,7 @@ class Attachment extends Post {
 		}
 
 		if ( ! empty( $post_data['ID'] ) ) {
-	        if ( $options['force_update_existing'] === true ) {
+	        if ( ! empty( $options['force_update_existing'] ) ) {
 
 				$post_id = wp_update_post( $post_data, true );
 
