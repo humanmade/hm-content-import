@@ -12,16 +12,15 @@ class Guest_Author extends Post {
 	/**
 	 * Add guest author (post) object into the database
 	 *
-	 * @param array $user_data
-	 * @param bool $canonical_id
-	 * @param array $author_meta
-	 * @return null|string|\WP_Error
+	 * @param array $user_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
+	 * @param bool  $canonical_id Use an existing canonical ID.
+	 * @param array $author_meta  Metadata to assign to the post.
+	 * @param array $options      Additional data about the post.
+	 * @return int|string|\WP_Error
 	 */
-	static function insert( $user_data = [], $canonical_id = false, $author_meta = [] ) {
+	static function insert( $user_data = [], $canonical_id = false, $author_meta = [], $options = [] ) {
 
-		$current_id = static::get_id_from_canonical_id( $canonical_id, 'guest-author' );
-
-		if ( $canonical_id && $current_id ) {
+		if ( $canonical_id && $current_id = static::get_id_from_canonical_id( $canonical_id ) ) {
 			return $current_id;
 		}
 
@@ -77,7 +76,7 @@ class Guest_Author extends Post {
 
 		global $coauthors_plus;
 
-			$user = $coauthors_plus->get_coauthor_by( $user_field, $user_value );
+		$user = $coauthors_plus->get_coauthor_by( $user_field, $user_value );
 
 		return $user;
 	}
@@ -154,6 +153,30 @@ class Guest_Author extends Post {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get post ID from canonical ID
+	 *
+	 * @param $canonical_id
+	 * @param string $post_type
+	 * @return null|string
+	 */
+	static function get_id_from_canonical_id( $canonical_id, $post_type = 'guest-author' ) {
+
+		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
+	}
+
+	/**
+	 * Set canonical ID meta
+	 *
+	 * @param $id
+	 * @param $canonical_id
+	 * @param string $post_type
+	 */
+	static function set_canonical_id( $id, $canonical_id, $post_type = 'guest-author' ) {
+
+		parent::set_canonical_id( $id, $canonical_id, $post_type );
 	}
 
 }
