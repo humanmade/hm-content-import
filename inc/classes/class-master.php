@@ -59,6 +59,11 @@ class Master {
 
 		if ( class_exists( $class_name ) ) {
 			self::$importers[ $key ] = $class_name;
+		} else {
+			trigger_error( sprintf(
+				'Importer class not found: "%s"',
+				$class_name
+			), E_USER_WARNING );
 		}
 	}
 
@@ -109,6 +114,11 @@ class Master {
 
 		if ( class_exists( $class_name ) ) {
 			self::$validators[ $key ] = $class_name;
+		} else {
+			trigger_error( sprintf(
+				'Validator class not found: "%s"',
+				$class_name
+			), E_USER_WARNING );
 		}
 	}
 
