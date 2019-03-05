@@ -88,13 +88,14 @@ abstract class Base extends \HMCI\Iterator\Base {
 		}
 
 		if ( is_dir( $path_found ) ) {
+			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path_found ) );
+			$files    = [];
 
-			$files = array_map( function( $item ) use ( $path_found ) {
-
-				return $path_found . '/' . $item;
-
-			}, scandir( $path_found ) );
-
+			foreach ( $iterator as $pointer ) {
+				if ( ! $pointer->isDir() ) {
+					$files[] = $pointer->getPathname();
+				}
+			}
 		} else {
 
 			$files = [ $path_found ];
