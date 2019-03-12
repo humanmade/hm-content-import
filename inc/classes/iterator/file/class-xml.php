@@ -3,14 +3,14 @@
 namespace HMCI\Iterator\File;
 
 /**
- * Base JSON file iterator class
+ * Base XML file iterator class
  *
  * Iterates over provided JSON File for processing
  *
- * Class JSON
+ * Class XML
  * @package HMCI\Iterator\File
  */
-abstract class JSON extends Base {
+abstract class XML extends Base {
 
 	/**
 	 * Get file contents
@@ -20,13 +20,13 @@ abstract class JSON extends Base {
 	 */
 	protected function get_file_contents( $file ) {
 
-		$json = file_get_contents( $file );
+		$contents = file_get_contents( $file );
 
-		if ( ! $json ) {
+		if ( ! $contents ) {
 			return [];
 		}
 
-		return json_decode( $json );
+		return simplexml_load_string( $contents );
 	}
 
 	/**
@@ -39,7 +39,7 @@ abstract class JSON extends Base {
 
 		return array_filter( $files, function( $filename ) {
 
-			return strtoupper( substr( $filename, -4 ) ) === '.JSON';
+			return strtoupper( substr( $filename, -4 ) ) === '.XML';
 
 		} );
 	}

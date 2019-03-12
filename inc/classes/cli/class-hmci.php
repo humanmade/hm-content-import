@@ -70,7 +70,7 @@ class HMCI extends \WP_CLI_Command {
 			$current_offset = 0;
 		}
 
-		$items = $importer->get_items( $offset + $current_offset, $importer->args['items_per_loop'] );
+		$items = $importer->get_items( $offset + $current_offset, min( $importer->args['items_per_loop'], $count ) );
 
 		while ( ( $offset + $current_offset ) < $total && $items ) {
 
