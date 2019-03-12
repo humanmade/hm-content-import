@@ -47,17 +47,6 @@ class Comment extends Base {
 	}
 
 	/**
-	 * Check if comment exists with provided canonical ID
-	 *
-	 * @param $canonical_id
-	 * @return bool
-	 */
-	static function exists( $canonical_id ) {
-
-		return (bool) static::get_id_from_canonical_id( $canonical_id );
-	}
-
-	/**
 	 * Get the WP core object type used by the inserter.
 	 *
 	 * @return string
