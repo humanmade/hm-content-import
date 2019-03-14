@@ -28,6 +28,7 @@ require_once( __DIR__ . '/inc/classes/iterator/files/class-xml.php' );
 
 require_once( __DIR__ . '/inc/classes/iterator/file/class-base.php' );
 require_once( __DIR__ . '/inc/classes/iterator/file/class-csv.php' );
+require_once( __DIR__ . '/inc/classes/iterator/file/class-xml.php' );
 
 require_once( __DIR__ . '/inc/classes/inserter/class-base-interface.php' );
 require_once( __DIR__ . '/inc/classes/inserter/class-base.php' );

@@ -20,10 +20,6 @@ abstract class CSV extends Base {
 	 */
 	protected function get_file_contents( $file ) {
 
-		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
-			return [];
-		}
-
 		$header = null;
 		$data   = [];
 		$handle = fopen( $file, 'r' );

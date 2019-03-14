@@ -75,10 +75,14 @@ abstract class Base extends \HMCI\Iterator\Base {
 		$check_paths = [ $path, ABSPATH . '/' . $path, ABSPATH . '../' . $path ];
 		$path_found  = '';
 
-		foreach ( $check_paths as $path ) {
-
-			if ( file_exists( $path ) ) {
-				$path_found = $path;
+		// If it's a remote url
+		if ( filter_var( $path, FILTER_VALIDATE_URL ) ) {
+			$path_found = $path;
+		} else {
+			foreach ( $check_paths as $path ) {
+				if ( file_exists( $path ) ) {
+					$path_found = $path;
+				}
 			}
 		}
 
