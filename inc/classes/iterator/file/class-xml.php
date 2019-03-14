@@ -30,7 +30,7 @@ abstract class XML extends Base {
 	}
 
 	/**
-	 * Filter files (only process files with .JSON extension)
+	 * Filter files (only process files with .XML extension)
 	 *
 	 * @param $files
 	 * @return array
