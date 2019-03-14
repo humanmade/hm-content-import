@@ -26,9 +26,9 @@ class Comment extends Base {
 		}
 
 		if ( ! empty( $comment_data['comment_ID'] ) ) {
-			$comment_id = wp_update_comment( $comment_data, true );
+			$comment_id = wp_update_comment( $comment_data );
 		} else {
-			$comment_id = wp_insert_comment( $comment_data, true );
+			$comment_id = wp_insert_comment( $comment_data );
 		}
 
 		if ( is_wp_error( $comment_id ) ) {
@@ -47,64 +47,12 @@ class Comment extends Base {
 	}
 
 	/**
-	 * Set meta data
+	 * Get the WP core object type used by the inserter.
 	 *
-	 * @param $comment_id
-	 * @param $meta_data
+	 * @return string
 	 */
-	static function set_meta( $comment_id, $meta_data ) {
+	static function get_core_object_type() {
 
-		foreach ( $meta_data as $meta_key => $meta_value ) {
-
-			if ( is_null( $meta_value ) ) {
-				delete_comment_meta( $comment_id, $meta_key );
-			} else {
-				update_comment_meta( $comment_id, $meta_key, $meta_value );
-			}
-		}
-
+		return 'comment';
 	}
-
-	/**
-	 * Check if comment exists with provided canonical ID
-	 *
-	 * @param $canonical_id
-	 * @return bool
-	 */
-	static function exists( $canonical_id ) {
-
-		return (bool) static::get_id_from_canonical_id( $canonical_id );
-	}
-
-	/**
-	 * Get comment ID from canonical ID
-	 *
-	 * @param $canonical_id
-	 * @return null|string
-	 */
-	static function get_id_from_canonical_id( $canonical_id ) {
-
-		$meta_key = sprintf( 'hmci_lookup_%s', md5( $canonical_id ) );
-
-		global $wpdb;
-
-		return $wpdb->get_var( $wpdb->prepare( "SELECT comment_id FROM $wpdb->commentmeta WHERE meta_key = %s", $meta_key ) );
-	}
-
-	/**
-	 * Set canonical ID meta
-	 *
-	 * @param $id
-	 * @param $canonical_id
-	 */
-	static function set_canonical_id( $id, $canonical_id ) {
-
-		if ( ! $canonical_id ) {
-			return;
-		}
-
-		update_comment_meta( $id, static::get_canonical_id_key(), $canonical_id );
-		update_comment_meta( $id, sprintf( 'hmci_lookup_%s', md5( $canonical_id ) ), 1 );
-	}
-
 }

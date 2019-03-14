@@ -41,7 +41,7 @@ class Guest_Author extends Post {
 		}
 
 		if ( $canonical_id ) {
-			static::set_canonical_id( $post_id, $canonical_id, 'guest-author' );
+			static::set_canonical_id( $post_id, $canonical_id );
 		}
 
 		if ( $author_meta && is_array( $author_meta ) ) {
@@ -154,29 +154,4 @@ class Guest_Author extends Post {
 
 		return true;
 	}
-
-	/**
-	 * Get post ID from canonical ID
-	 *
-	 * @param $canonical_id
-	 * @param string $post_type
-	 * @return null|string
-	 */
-	static function get_id_from_canonical_id( $canonical_id, $post_type = 'guest-author' ) {
-
-		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
-	}
-
-	/**
-	 * Set canonical ID meta
-	 *
-	 * @param $id
-	 * @param $canonical_id
-	 * @param string $post_type
-	 */
-	static function set_canonical_id( $id, $canonical_id, $post_type = 'guest-author' ) {
-
-		parent::set_canonical_id( $id, $canonical_id, $post_type );
-	}
-
 }

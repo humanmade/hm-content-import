@@ -68,7 +68,7 @@ class Attachment extends Post {
 		}
 
 		if ( $canonical_id ) {
-			static::set_canonical_id( $post_id, $canonical_id, 'attachment' );
+			static::set_canonical_id( $post_id, $canonical_id );
 		}
 
 		static::set_import_path_meta( $post_id, $options['path'] );
@@ -181,39 +181,6 @@ class Attachment extends Post {
 	 */
 	protected static function cleanup_file( $file_array ) {
 		@unlink( $file_array['tmp_name'] ); //phpcs:ignore
-	}
-
-	/**
-	 * Check if attachment exists in the database
-	 *
-	 * @param mixed  $canonical_id
-	 * @param string $post_type
-	 * @return bool
-	 */
-	static function exists( $canonical_id, $post_type = 'attachment' ) {
-		return (bool) static::get_id_from_canonical_id( $canonical_id, $post_type );
-	}
-
-	/**
-	 * Get post ID from canonical ID
-	 *
-	 * @param $canonical_id
-	 * @param string $post_type
-	 * @return null|string
-	 */
-	static function get_id_from_canonical_id( $canonical_id, $post_type = 'attachment' ) {
-		return parent::get_id_from_canonical_id( $canonical_id, $post_type );
-	}
-
-	/**
-	 * Set canonical ID meta
-	 *
-	 * @param $id
-	 * @param $canonical_id
-	 * @param string $post_type
-	 */
-	static function set_canonical_id( $id, $canonical_id, $post_type = 'attachment' ) {
-		parent::set_canonical_id( $id, $canonical_id, $post_type );
 	}
 
 	/**
