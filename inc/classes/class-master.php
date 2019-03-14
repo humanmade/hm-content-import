@@ -2,6 +2,8 @@
 
 namespace HMCI;
 
+use function HM\Meta_Lookups\register_lookup;
+
 /**
  * Singleton master class for HMCI
  *
@@ -44,6 +46,7 @@ class Master {
 		if ( ! static::$instance ) {
 			static::$instance = new static();
 			static::$instance->init_cli();
+			static::$instance->init_lookups();
 		}
 
 		return static::$instance;
@@ -151,12 +154,25 @@ class Master {
 
 	/**
 	 * Initialise WP CLI command
-	 *
 	 */
-	protected static function init_cli() {
+	protected function init_cli() {
 
 		if ( defined( 'WP_CLI' ) && 'WP_CLI' ) {
 			\WP_CLI::add_command( 'hmci',  apply_filters( 'hmci_wp_cli_class_name', __NAMESPACE__ . '\\CLI\\HMCI' ) );
+		}
+	}
+
+	/**
+	 * Init canonical ID lookups for all core object types
+	 */
+	protected function init_lookups() {
+
+		if ( ! is_callable( 'HM\\Meta_Lookups\\register_lookup' ) ) {
+			return;
+		}
+
+		foreach ( [ 'post', 'comment', 'user', 'term' ] as $type ) {
+			register_lookup( sprintf( '%s_%s', CANONICAL_ID_LOOKUP_KEY, $type ), $type, CANONICAL_ID_LOOKUP_KEY );
 		}
 	}
 }

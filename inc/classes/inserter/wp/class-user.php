@@ -25,7 +25,7 @@ class User extends Base {
 			$user_data['ID'] = $current_id;
 		}
 
-		$user_id = wp_insert_user( $user_data, true );
+		$user_id = wp_insert_user( $user_data );
 
 		if ( is_wp_error( $user_id ) ) {
 			return $user_id;
@@ -40,39 +40,6 @@ class User extends Base {
 		}
 
 		return $user_id;
-	}
-
-	/**
-	 * Set user meta
-	 *
-	 * @param $user_id
-	 * @param $meta_data
-	 */
-	static function set_meta( $user_id, $meta_data ) {
-
-		foreach ( $meta_data as $meta_key => $meta_value ) {
-
-			if ( is_null( $meta_value ) ) {
-				delete_post_meta( $user_id, $meta_key );
-			} else {
-				update_user_meta( $user_id, $meta_key, $meta_value );
-			}
-		}
-
-	}
-
-	/**
-	 * Get user ID from canonical ID
-	 *
-	 *
-	 * @param $canonical_id
-	 * @return null|string
-	 */
-	static function get_id_from_canonical_id( $canonical_id ) {
-
-		global $wpdb;
-
-		return $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
 	}
 
 	/**
@@ -102,18 +69,12 @@ class User extends Base {
 	}
 
 	/**
-	 * Set user canonical ID
+	 * Get the WP core object type used by the inserter.
 	 *
-	 * @param $id
-	 * @param $canonical_id
+	 * @return string
 	 */
-	static function set_canonical_id( $id, $canonical_id ) {
+	static function get_core_object_type() {
 
-		if ( ! $canonical_id ) {
-			return;
-		}
-
-		update_user_meta( $id, static::get_canonical_id_key(), $canonical_id );
+		return 'user';
 	}
-
 }

@@ -2,6 +2,8 @@
 
 namespace HMCI\Inserter;
 
+use const HMCI\CANONICAL_ID_LOOKUP_KEY;
+
 /**
  *
  * Base inserter class
@@ -18,8 +20,7 @@ abstract class Base implements Base_Interface {
 	 * @return mixed|void
 	 */
 	static function get_canonical_id_key() {
-
-		return apply_filters( 'hmci_import_type_canonical_id_key', 'hmci_canonical_id', get_called_class() );
+		return apply_filters( 'hmci_canonical_id_key', CANONICAL_ID_LOOKUP_KEY, static::class );
 	}
 
 	/**

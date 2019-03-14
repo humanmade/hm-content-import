@@ -21,7 +21,7 @@ class Term extends Base {
 	 */
 	static function insert( $term, $taxonomy, $canonical_id = false, $args = [], $term_meta = [] ) {
 
-		$current_id = static::get_id_from_canonical_id( $canonical_id, $taxonomy );
+		$current_id = static::get_id_from_canonical_id( $canonical_id );
 
 		// Got term by canonical ID marker
 		if ( $canonical_id && $current_id ) {
@@ -54,7 +54,7 @@ class Term extends Base {
 
 		// Canonical ID provided, set it
 		if ( $canonical_id ) {
-			static::set_canonical_id( $term_id, $canonical_id, $taxonomy );
+			static::set_canonical_id( $term_id, $canonical_id );
 		}
 
 		// Meta data provided, set it
@@ -66,83 +66,12 @@ class Term extends Base {
 	}
 
 	/**
-	 * Set term meta
+	 * Get the WP core object type used by the inserter.
 	 *
-	 * @param $term_id
-	 * @param $meta_data
+	 * @return string
 	 */
-	static function set_meta( $term_id, $meta_data ) {
+	static function get_core_object_type() {
 
-		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
-			return;
-		}
-
-		foreach ( $meta_data as $meta_key => $meta_value ) {
-
-			if ( is_null( $meta_value ) ) {
-				delete_term_meta( $term_id, $meta_key );
-			} else {
-				update_term_meta( $term_id, $meta_key, $meta_value );
-			}
-		}
-
+		return 'term';
 	}
-
-	/**
-	 * Check if term exists for provided canonical ID
-	 *
-	 * @param $canonical_id
-	 * @param null $taxonomy
-	 * @return bool
-	 */
-	static function exists( $canonical_id, $taxonomy = null ) {
-
-		return (bool) static::get_id_from_canonical_id( $canonical_id, $taxonomy );
-	}
-
-	/**
-	 * Get term ID from canonical ID
-	 *
-	 * @param $canonical_id
-	 * @param null $taxonomy
-	 * @return bool|null|string
-	 */
-	static function get_id_from_canonical_id( $canonical_id, $taxonomy = null ) {
-
-		if ( ! is_callable( 'delete_term_meta' ) || ! is_callable( 'update_term_meta' ) ) {
-			return false;
-		}
-
-		global $wpdb;
-
-		return $wpdb->get_var( $wpdb->prepare( "SELECT term_id FROM $wpdb->termmeta WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key_suffixed( $taxonomy ), $canonical_id ) );
-	}
-
-	/**
-	 * Set term canonical ID
-	 *
-	 * @param $id
-	 * @param $canonical_id
-	 * @param null $taxonomy
-	 */
-	static function set_canonical_id( $id, $canonical_id, $taxonomy = null ) {
-
-		if ( ! $canonical_id || ! is_callable( 'update_term_meta' ) ) {
-			return;
-		}
-
-		update_term_meta( $id, static::get_canonical_id_key_suffixed( $taxonomy ), $canonical_id );
-	}
-
-	/**
-	 * Get canonical ID meta key
-	 *
-	 * @param null $taxonomy
-	 * @return mixed|string|void
-	 */
-	static function get_canonical_id_key_suffixed( $taxonomy = null ) {
-
-		return ( $taxonomy ) ? static::get_canonical_id_key() . '_' . $taxonomy : static::get_canonical_id_key();
-	}
-
 }
