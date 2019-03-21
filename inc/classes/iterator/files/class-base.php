@@ -49,7 +49,7 @@ abstract class Base extends \HMCI\Iterator\Base {
 
 		$files_in_path = $this->get_files_in_path();
 
-		return is_wp_error( $files_in_path ) ? $files_in_path : count( $files_in_path );
+		return is_wp_error( $files_in_path ) ? $files_in_path : count( $this->filter_files( $files_in_path ) );
 	}
 
 	/**
