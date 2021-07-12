@@ -77,9 +77,9 @@ class HMCI extends \WP_CLI_Command {
 			$importer->iterate_items( $items );
 			// Only tick if the offset hasn't been changed by the importer
 			if ( $progress->current() === $current_offset ) {
-				$progress->tick( count( $items ) );
+				$progress->tick( $importer->args['items_per_loop'] );
 			}
-			$current_offset += count( $items );
+			$current_offset += $importer->args['items_per_loop'];
 
 			if ( ( $offset + $current_offset ) >= $total ) {
 				break;
