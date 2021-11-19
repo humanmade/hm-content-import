@@ -121,7 +121,7 @@ class HMCI extends \WP_CLI_Command {
 		$total          = $count + $offset;
 
 		if ( $args_assoc['show_progress'] && $args_assoc['show_progress'] !== 'false' ) {
-			// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %1$d Refers to number of items being imported
+			// translators: %1$s refers to a validator type, i.e. 'Posts Validator`. %1$d Refers to number of items being validated
 			$progress = new \cli\progress\Bar( sprintf( __( 'Validating data for %1$s (%1$d items)', 'hmci' ), $validator_type, $count ), $count, 100 );
 			$progress->display();
 		}
