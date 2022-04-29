@@ -74,4 +74,27 @@ class Term extends Base {
 
 		return 'term';
 	}
+
+	/**
+	 * Get term ID from canonical ID
+	 *
+	 * @param $canonical_id
+	 * @return null|string
+	 */
+	static function get_id_from_canonical_id( $canonical_id ) {
+
+		$lookup_name = sprintf( '%s_%s', static::get_canonical_id_key(), static::get_core_object_type() );
+
+		// If we have cached meta lookup support, use that.
+		if ( class_exists( 'HM\\Meta_Lookups\\Lookup' ) && Lookup::get_instance( $lookup_name ) ) {
+			return Lookup::get_instance( $lookup_name )->get( $canonical_id );
+		}
+
+		// No cached meta lookup support, do a direct query.
+		global $wpdb;
+
+		$table = $wpdb->{static::get_core_object_type() . 'meta'};
+
+		return $wpdb->get_var( $wpdb->prepare( "SELECT term_id FROM $table WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
+	}
 }
