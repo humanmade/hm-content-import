@@ -21,7 +21,7 @@ class Term extends Base {
 	 */
 	static function insert( $term, $taxonomy, $canonical_id = false, $args = [], $term_meta = [] ) {
 
-		$current_id = static::get_id_from_canonical_id( $canonical_id );
+		$current_id = static::get_id_from_canonical_id( $canonical_id, 'term_id' );
 
 		// Got term by canonical ID marker
 		if ( $canonical_id && $current_id ) {
