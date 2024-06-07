@@ -132,7 +132,6 @@ class Attachment extends Post {
 
 			// If error storing temporarily, unlink
 			if ( is_wp_error( $file_array['tmp_name'] ) ) {
-				@unlink( $file_array['tmp_name'] ); // phpcs:ignore
 				return $file_array['tmp_name'];
 			}
 
