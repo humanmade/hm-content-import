@@ -38,14 +38,14 @@ abstract class Base extends \HMCI\Inserter\Base implements Base_Interface {
 
 		return (bool) static::get_id_from_canonical_id( $canonical_id );
 	}
-	
+
 	/**
 	 * Get post ID from canonical ID
 	 *
 	 * @param $canonical_id
 	 * @return null|string
 	 */
-	static function get_id_from_canonical_id( $canonical_id ) {
+	static function get_id_from_canonical_id( $canonical_id, $id_field = 'post_id' ) {
 
 		$lookup_name = sprintf( '%s_%s', static::get_canonical_id_key(), static::get_core_object_type() );
 
@@ -59,7 +59,7 @@ abstract class Base extends \HMCI\Inserter\Base implements Base_Interface {
 
 		$table = $wpdb->{static::get_core_object_type() . 'meta'};
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $table WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
+		return $wpdb->get_var( $wpdb->prepare( "SELECT $id_field FROM $table WHERE meta_key = %s AND meta_value = %s", static::get_canonical_id_key(), $canonical_id ) );
 	}
 
 	/**
