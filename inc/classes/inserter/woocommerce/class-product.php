@@ -31,7 +31,7 @@ class Product extends Post {
 
 		if ( $product_id && ! is_wp_error( $product_id ) ) {
 
-			$product = new WC_Product_Factory()->get_product( $product_id );
+			$product = ( new WC_Product_Factory() )->get_product( $product_id );
 
 			$product->set_props( $product_meta );
 			$product->save();
