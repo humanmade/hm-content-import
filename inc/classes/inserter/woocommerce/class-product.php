@@ -3,6 +3,7 @@
 namespace HMCI\Inserter\Woocommerce;
 
 use HMCI\Inserter\WP\Post;
+use WC_Product_Factory;
 
 /**
  * Woocommerce Product inserter - manages inserting products from post_data and meta_data
@@ -28,7 +29,7 @@ class Product extends Post {
 
 		$product_id = parent::insert( $post_data, $canonical_id, $post_meta );
 
-		if ( $product_id && ! is_wp_error( $product_id ) {
+		if ( $product_id && ! is_wp_error( $product_id ) ) {
 
 			$product = new WC_Product_Factory()->get_product( $product_id );
 
