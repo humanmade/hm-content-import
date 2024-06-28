@@ -3,7 +3,9 @@
 namespace HMCI\Inserter\Woocommerce;
 
 use HMCI\Inserter\WP\Base;
+use WC_Order_Factory;
 use WC_Order_Item;
+use WC_Order_Item_Product;
 
 /**
  * Woocommerce Order Item inserter - manages inserting order items into the woocommerce_order_items table.
@@ -30,18 +32,16 @@ class Order_Item extends Base {
 	 * @param [] $order_item_meta Order item meta to insert.
 	 * @return WC_Order_Item
 	 */
-	static function insert( $order_id, $order_item, $canonical_id = false, $order_item_meta = [] ) {
+	static function insert( $order_item, $canonical_id = false, $order_item_meta = [] ) {
 
-		$order_item['order_id'] = $order_id;
-
-		if ( empty( $order_item['order_item_id'] ) && $canonical_id ) {
+		if ( $canonical_id ) {
 			$current_id = static::get_id_from_canonical_id( $canonical_id, 'order_item_id' );
 		}
 
 		if ( $current_id ) {
-			$order_item_record = new WC_Order_Item( $current_id );
+			$order_item_record = WC_Order_Factory::get_order_item( $current_id );
 		} else {
-			$order_item_record = new WC_Order_Item();
+			$order_item_record = new WC_Order_Item_Product();
 		}
 
 		$order_item_record->set_props( $order_item );

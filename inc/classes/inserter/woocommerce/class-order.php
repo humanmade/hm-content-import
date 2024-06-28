@@ -41,13 +41,12 @@ class Order extends Base {
 		$order_id = $order->get_id();
 
 		foreach ( $products as $product ) {
-			$order_item = Order_Item::insert( $order_id, ...$product );
+			$order_item = Order_Item::insert( ...$product );
 
 			$order->add_item( $order_item );
 		}
 
 		$order->set_created_via( 'import' );
-
 		$order->save();
 
 		static::set_canonical_id( $order_id, $canonical_id );
