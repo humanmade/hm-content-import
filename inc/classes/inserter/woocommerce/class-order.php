@@ -31,25 +31,38 @@ class Order extends Base {
 			}
 		}
 
-		if ( ! $order || is_wp_error( $order ) ) {
+		if ( empty( $order ) || is_wp_error( $order ) ) {
 			$order = new WC_Order();
 		}
 
-		$order->set_props( $order_meta );
+		$order->set_props( $order_data );
+		$order->save();
+
+		$order_id = $order->get_id();
 
 		foreach ( $products as $product ) {
-			$order_item = Order_Item::insert( ...$product );
+			$order_item = Order_Item::insert( $order_id, ...$product );
 
 			$order->add_item( $order_item );
 		}
 
-		$order->set_created_by( 'import' );
+		$order->set_created_via( 'import' );
 
-		return $order->save();
+		$order->save();
+
+		static::set_canonical_id( $order_id, $canonical_id );
+		return $order_id;
 	}
 
 	static function get_core_object_type() {
-		return 'wc_order';
+		global $wpdb;
+
+		// WooCommerce doesn't register orders with $wpdb.
+		if ( ! property_exists( $wpdb, 'ordermeta' ) ) {
+			$wpdb->ordermeta = "{$wpdb->prefix}wc_orders_meta";
+		}
+
+		return 'order';
 	}
 }
 
