@@ -53,6 +53,14 @@ class Order extends Base {
 		return $order_id;
 	}
 
+	static function set_canonical_id( $order_id, $canonical_id ) {
+		if ( $order_id === static::get_id_from_canonical_id( $canonical_id, 'order_id' ) ) {
+			return;
+		}
+
+		parent:: set_canonical_id( $order_id, $canonical_id );
+	}
+
 	static function get_core_object_type() {
 		global $wpdb;
 
