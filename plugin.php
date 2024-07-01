@@ -46,6 +46,10 @@ require_once( __DIR__ . '/inc/classes/inserter/wp/class-attachment.php' );
 require_once( __DIR__ . '/inc/classes/inserter/wp/class-term.php' );
 require_once( __DIR__ . '/inc/classes/inserter/wp/class-comment.php' );
 
+require_once( __DIR__ . '/inc/classes/inserter/woocommerce/class-order.php' );
+require_once( __DIR__ . '/inc/classes/inserter/woocommerce/class-order-item.php' );
+require_once( __DIR__ . '/inc/classes/inserter/woocommerce/class-product.php' );
+
 require_once( __DIR__ . '/inc/classes/class-master.php' );
 
 /**
