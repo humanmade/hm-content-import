@@ -47,7 +47,7 @@ class Order_Item extends Base {
 		$order_item_record->set_props( $order_item );
 
 		if ( $canonical_id ) {
-			$order_item_meta[ static::get_canonical_id_key() ] = $canonical_id;
+			$order_item_meta[ static::get_canonical_id_key( $canonical_id ) ] = 1;
 		}
 
 		foreach ( $order_item_meta as $key => $value ) {

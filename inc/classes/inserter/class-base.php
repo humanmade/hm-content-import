@@ -19,8 +19,8 @@ abstract class Base implements Base_Interface {
 	 *
 	 * @return mixed|void
 	 */
-	static function get_canonical_id_key() {
-		return apply_filters( 'hmci_canonical_id_key', CANONICAL_ID_LOOKUP_KEY, static::class );
+	static function get_canonical_id_key( string $canonical_id ) {
+		return apply_filters( 'hmci_canonical_id_key', sprintf( '%s_%s', CANONICAL_ID_LOOKUP_KEY, $canonical_id ), static::class );
 	}
 
 	/**

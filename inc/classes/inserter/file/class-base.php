@@ -58,7 +58,7 @@ abstract class Base extends \HMCI\Inserter\Base {
 	 *
 	 * @return string
 	 */
-	static function get_canonical_id_key() {
+	static function get_canonical_id_key( string $canonical_id ) {
 		return false;
 	}
 
