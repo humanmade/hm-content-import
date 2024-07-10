@@ -53,8 +53,8 @@ UPDATE wp_termmeta SET meta_key = CONCAT('hmci_canonical_id_', meta_value) WHERE
 Should you need to revert this migration, you can run the following SQL query:
 
 ```sql
-UPDATE wp_postmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
-UPDATE wp_usermeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
-UPDATE wp_commentmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
-UPDATE wp_termmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
+UPDATE wp_postmeta SET meta_key = 'hmci_canonical_id' WHERE meta_key LIKE 'hmci_canonical_id_%';
+UPDATE wp_usermeta SET meta_key = 'hmci_canonical_id' WHERE meta_key LIKE 'hmci_canonical_id_%';
+UPDATE wp_commentmeta SET meta_key = 'hmci_canonical_id' WHERE meta_key LIKE 'hmci_canonical_id_%';
+UPDATE wp_termmeta SET meta_key = 'hmci_canonical_id' WHERE meta_key LIKE 'hmci_canonical_id_%';
 ```
