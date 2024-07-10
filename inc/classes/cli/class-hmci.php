@@ -4,6 +4,7 @@ namespace HMCI\CLI;
 
 use HMCI\Master;
 
+use WP_CLI;
 use function HMCI\Utils\clear_local_object_cache as clear_local_cache;
 
 /**
@@ -29,6 +30,38 @@ class HMCI extends \WP_CLI_Command {
 	/**
 	 *
 	 * Run a registered import script
+	 *
+	 * <importer>
+	 * : The importer to run.
+	 *
+	 * [--count=<number>]
+	 * : The number of items to import. Defaults to all.
+	 *
+	 * [--offset=<number>]
+	 * : The number of items to skip. Defaults to 0.
+	 *
+	 * [--resume]
+	 * : Resume the import from the last saved progress.
+	 *
+	 * [--verbose]
+	 * : Show verbose output.
+	 *
+	 * [--disable_global_terms]
+	 * : Disable global terms. Defaults to true.
+	 *
+	 * [--disable_trackbacks]
+	 * : Disable trackbacks. Defaults to true.
+	 *
+	 * [--disable_intermediate_images]
+	 * : Disable intermediate image sizes.
+	 *
+	 * [--define_wp_importing]
+	 * : Define WP_IMPORTING constant. Defaults to true.
+	 *
+	 * [--thread_id=<id>]
+	 * : Thread ID to keep a unique progress value per each, when threading.
+	 *
+	 *
 	 *
 	 * @subcommand import
 	 */
@@ -75,10 +108,7 @@ class HMCI extends \WP_CLI_Command {
 		while ( ( $offset + $current_offset ) < $total && $items ) {
 
 			$importer->iterate_items( $items );
-			// Only tick if the offset hasn't been changed by the importer
-			if ( $progress->current() === $current_offset ) {
-				$progress->tick( count( $items ) );
-			}
+			$progress->tick( count( $items ) );
 			$current_offset += count( $items );
 
 			if ( ( $offset + $current_offset ) >= $total ) {
@@ -95,6 +125,16 @@ class HMCI extends \WP_CLI_Command {
 		$progress->finish();
 
 		$importer->iteration_complete();
+	}
+
+	/**
+	 * Show the progress of an import
+	 *
+	 * @subcommand show-progress <importer>
+	 * @param string[] $args
+	 */
+	public function show_progress( array $args ) {
+		WP_CLI::line( $this->get_progress( 'importer', $args[0] ) );
 	}
 
 	/**
@@ -310,7 +350,7 @@ class HMCI extends \WP_CLI_Command {
 	}
 
 	protected function get_thread_id( $type, $name ) {
-		$thread_id = $this->args_assoc['thread_id'] ? '~' . $this->args_assoc['thread_id'] : null;
+		$thread_id = isset( $this->args_assoc['thread_id'] ) ? '~' . $this->args_assoc['thread_id'] : null;
 		return md5( $type . '~' . $name . $thread_id );
 	}
 

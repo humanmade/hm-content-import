@@ -56,7 +56,8 @@ interface Base_Interface {
 	/**
 	 * Get key used to store canonical ID
 	 *
+	 * @param $canonical_id
 	 * @return mixed
 	 */
-	static function get_canonical_id_key();
+	static function get_canonical_id_key( string $canonical_id );
 }
