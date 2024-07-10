@@ -37,3 +37,24 @@ HMCI supports inserting imported data into:
 * Files
   - CSV
 
+## Migrating From Version 1
+
+In Version 2 we changed the way canonical IDs are stored. This means that you will need to migrate your existing data to the new format, if you are planning to resume / to delta imports with data that was imported under Version 1.
+
+Run the following SQL query to migrate your existing data:
+
+```sql
+UPDATE wp_postmeta SET meta_key = CONCAT('hmci_canonical_id_', meta_value) WHERE meta_key = 'hmci_canonical_id';
+UPDATE wp_usermeta SET meta_key = CONCAT('hmci_canonical_id_', meta_value) WHERE meta_key = 'hmci_canonical_id';
+UPDATE wp_commentmeta SET meta_key = CONCAT('hmci_canonical_id_', meta_value) WHERE meta_key = 'hmci_canonical_id';
+UPDATE wp_termmeta SET meta_key = CONCAT('hmci_canonical_id_', meta_value) WHERE meta_key = 'hmci_canonical_id';
+```
+
+Should you need to revert this migration, you can run the following SQL query:
+
+```sql
+UPDATE wp_postmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
+UPDATE wp_usermeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
+UPDATE wp_commentmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
+UPDATE wp_termmeta SET meta_key = 'canonical_id' WHERE meta_key LIKE 'canonical_id_%';
+```
