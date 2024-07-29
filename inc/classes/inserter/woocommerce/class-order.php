@@ -40,6 +40,9 @@ class Order extends Base {
 
 		$order_id = $order->get_id();
 
+		// Remove any current items from the order if this order is being updated.
+		$order->remove_order_items();
+
 		foreach ( $products as $product ) {
 			$order_item = Order_Item::insert( ...$product );
 
@@ -58,7 +61,7 @@ class Order extends Base {
 			return;
 		}
 
-		parent:: set_canonical_id( $order_id, $canonical_id );
+		parent::set_canonical_id( $order_id, $canonical_id );
 	}
 
 	static function get_core_object_type() {
