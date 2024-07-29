@@ -15,7 +15,7 @@ wp hmci import posts --count=100 --offset=0 --thread_id=1    // Run from shell 1
 wp hmci import posts --count=100 --offset=100 --thread_id=2  // Run from shell 2
 ```
 
-If any of the import processes are interrupted, the progress can be resumed with the `--resume` flag.
+If the first import process is interrupted, the progress can be resumed with `wp hmci import posts --count=100 --offset=0 --thread_id=1 --resume`.
 
 ## Importer specific arguments
 
