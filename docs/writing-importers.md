@@ -24,7 +24,7 @@ See all the importers in the [inc/classes/inserter](./inc/classes/inserter) and 
 
 When writing importers with HMCI, all items that are being imported will have a canonical ID. This is a unique identifier from the source data, and is used to match already imported items in the WordPress database.
 
-Note: canonical IDs should be unique accross importers if those importers are importing the same WordPress data type. For example, if you have an importer that imports articles with canonincal IDs raniging from 1-100, and another importer imports products that also have canonical IDs ranging from 1-100, then the two importers will have a conflict. Therefor it's recommended to use a prefix for the canonical IDs, such as `article_1`, `article_2`, etc.
+Note: canonical IDs should be unique accross importers if those importers are importing the same WordPress data type. For example, if you have an importer that imports articles with canonincal IDs ranging from 1-100, and another importer imports products that also have canonical IDs ranging from 1-100, then the two importers will have a conflict. Therefor it's recommended to use a prefix for the canonical IDs, such as `article_1`, `article_2`, etc.
 
 ## Examples
 
