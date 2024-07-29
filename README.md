@@ -37,6 +37,14 @@ HMCI supports inserting imported data into:
 * Files
   - CSV
 
+## Importing
+
+See the [Running Imports](./docs/running-imports.md) for more information on how to import data.
+
+## Writing Importers
+
+See the [Writing Importers](./docs/writing-importers.md) for more information on how to write importers.
+
 ## Migrating From Version 1
 
 In Version 2 we changed the way canonical IDs are stored. This means that you will need to migrate your existing data to the new format, if you are planning to resume / to delta imports with data that was imported under Version 1.
