@@ -9,7 +9,7 @@ use function HM\Meta_Lookups\register_lookup;
  *
  * Manages
  * - Getting/setting of importer and validator instances
- * - Initialisation of CLI command instances
+ * - Initialization of CLI command instances
  *
  * @package HMCI
  */
@@ -39,7 +39,7 @@ class Master {
 	/**
 	 * Get the master class instance
 	 *
-	 * @return bool
+	 * @return static
 	 */
 	public static function get_instance() {
 
@@ -70,7 +70,7 @@ class Master {
 	 *
 	 * Returns assoc array of importer ID -> class name
 	 *
-	 * @return array
+	 * @return array<string, class-string>
 	 */
 	public static function get_importers() {
 		return self::$importers;
@@ -153,12 +153,13 @@ class Master {
 	}
 
 	/**
-	 * Initialise WP CLI command
+	 * Initialize WP CLI command
 	 */
 	protected function init_cli() {
-
 		if ( defined( 'WP_CLI' ) && 'WP_CLI' ) {
-			\WP_CLI::add_command( 'hmci',  apply_filters( 'hmci_wp_cli_class_name', __NAMESPACE__ . '\\CLI\\HMCI' ) );
+			$class = apply_filters( 'hmci_wp_cli_class_name', __NAMESPACE__ . '\\CLI\\HMCI' );
+			$class = new $class();
+			$class->register_commands();
 		}
 	}
 
