@@ -77,14 +77,96 @@ abstract class Base implements Base_Interface {
 	 * @param $items
 	 */
 	public function iterate_items( $items ) {
-
-		foreach ( $items as $item ) {
-
-			$r = $this->iterate_item( $item );
-
-			if ( is_wp_error( $r ) ) {
-				$this->debug( $r );
+		if ( $this instanceof Thread_Safe ) {
+			return $this->iterate_items_with_fork( $items );
+		} else {
+			foreach ( $items as $item ) {
+				$r = $this->iterate_item( $item );
+				if ( is_wp_error( $r ) ) {
+					$this->debug( $r );
+				}
 			}
+		}
+	}
+
+	/**
+	 * Process the items in parallel with forked processes.
+	 *
+	 * This should only be used if the iterator is thread safe (implements Thread_Safe interface)
+	 * .
+	 * @param mixed $items
+	 * @return void
+	 */
+	protected function iterate_items_with_fork( $items ) {
+		// Safe tio defer term counting no matter what, as items will run in parallel.
+		wp_defer_term_counting( true );
+
+		$child_processes = [];
+		$max_processes = $this->get_args()['threads'] ?? 24;
+
+		$to_process = array_keys( array_values( $items ) );
+		while ( true ) {
+			foreach ( $child_processes as $item_number => $pid ) {
+				$res = pcntl_waitpid( $pid, $status, WNOHANG );
+				if ($res == -1) {
+					// Error occurred
+					\WP_CLI::error( 'An error occurred while checking child process status.' );
+				} elseif ( $res > 0 ) {
+					if ( pcntl_wifexited( $status ) ) {
+						$exist_status = pcntl_wexitstatus( $status );
+						unset( $child_processes[ $item_number ] );
+						if ( $exist_status === 0 ) {
+							//\WP_CLI::line( "Parent: Child process exited with status $exist_status." );
+						} else {
+							\WP_CLI::line( "Parent: Child process exited with filed status $exist_status, putting item back on job array." );
+							$to_process[] = $item_number;
+						}
+					} else {
+						\WP_CLI::error( "An error occurred while checking child process status." );
+					}
+				} else {
+					// Child process is still running
+				}
+			}
+
+			if ( empty( $to_process ) && count( $child_processes ) === 0 ) {
+				break;
+			}
+
+			if ( $to_process && count( $child_processes ) < $max_processes ) {
+				$process_item_number = reset( $to_process );
+				unset ( $to_process[0] );
+				$to_process = array_values( $to_process );
+
+				$pid = pcntl_fork();
+				if ( $pid === -1) {
+					\WP_CLI::error( 'Failed to fork child process' );
+				} else if ( $pid === 0) {
+					global $wp_object_cache;
+					global $wpdb;
+					foreach ( $wpdb->dbhs as $dbh => $connection ) {
+						$wpdb->disconnect( $dbh );
+					}
+					$wpdb->persistent = false;
+					$wp_object_cache = new \WP_Object_Cache();
+					if ( method_exists( $this, 'startup_thread' ) ) {
+						call_user_func( [ $this, 'startup_thread' ] );
+					}
+
+					$this->iterate_item( $items[ $process_item_number ] );
+					foreach ( $wpdb->dbhs as $dbh => $connection ) {
+						$wpdb->disconnect( $dbh );
+					}
+
+					if ( method_exists( $this, 'shutdown_thread' ) ) {
+						call_user_func( [ $this, 'shutdown_thread' ] );
+					}
+					exit;
+				} else {
+					$child_processes[ $process_item_number ] = $pid;
+				}
+			}
+			usleep( 1_000 );
 		}
 	}
 
@@ -204,6 +286,11 @@ abstract class Base implements Base_Interface {
 				'default'     => false,
 				'type'        => 'bool',
 				'description' => __( 'Attempt to resume script (if there was a failure during last execution)', 'hmci' ),
+			],
+			'threads'          => [
+				'default'     => 1,
+				'type'        => 'numeric',
+				'description' => __( 'Number of threads to use for processing, if the iterator is thread safe', 'hmci' ),
 			],
 		];
 

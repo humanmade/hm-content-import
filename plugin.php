@@ -15,6 +15,7 @@ namespace HMCI;
 require_once( __DIR__ . '/inc/utils/namespace.php' );
 
 require_once( __DIR__ . '/inc/classes/iterator/class-base-interface.php' );
+require_once( __DIR__ . '/inc/classes/iterator/class-thread-safe-interface.php' );
 require_once( __DIR__ . '/inc/classes/iterator/class-base.php' );
 
 require_once( __DIR__ . '/inc/classes/iterator/db/class-base.php' );

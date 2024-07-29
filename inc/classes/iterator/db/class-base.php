@@ -47,6 +47,21 @@ abstract class Base extends \HMCI\Iterator\Base {
 	}
 
 	/**
+	 * In cases when the importer supports threading, this method will be called before the thread is started
+	 * to set up a new DB connection.
+	 */
+	public function startup_thread() {
+		$this->set_db();
+	}
+
+	/**
+	 * In cases when the importer supports threading, this method will be called after the thread is finished
+	 * to close the DB connection.
+	 */
+	public function shutdown_thread() {
+		$this->database_connection->close();
+	}
+	/**
 	 * Get iterator argument definitions
 	 *
 	 * @return array

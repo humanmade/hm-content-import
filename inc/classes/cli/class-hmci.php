@@ -61,7 +61,11 @@ class HMCI extends \WP_CLI_Command {
 	 * [--thread_id=<id>]
 	 * : Thread ID to keep a unique progress value per each, when threading.
 	 *
+	 * [--items_per_loop=<number>]
+	 * : Number of items to be processed on a single loop, larger are more efficient but more memory intensive.
 	 *
+	 * [--threads=<number>]
+	 * : Number of threads to use for processing, if the importer is thread safe.
 	 *
 	 * @subcommand import
 	 */

@@ -37,6 +37,17 @@ HMCI supports inserting imported data into:
 * Files
   - CSV
 
+## Parallelization
+
+HMCI supports parallelization of imports, whereby each `process_item()` on the importer will run in a separate process. This is achieved by using the `pcntl_fork()` function. However, this is opt-in per importer as implementors must be careful to ensure that the `process_item()` does not rely on data populated by other calls to process_item(). For example, if `process_item()` adds to a global array, or array on the importer for a customer `$import_map`, then this data will not be available to other processes.
+
+If your importer is thread-safe in this way, you should implement the `HMCI\Iterator\Thread_Sage` interface.
+
+When importers are in in parallel, `wp_defer_term_counting()` is called, so `wp term count <taxonomy>` will need to be run after the import.
+
+Pass `--threads=<number>` to the CLI command to specify the number of threads to use. For maximum performance, this should be atleast set to the number of CPU cores on the server. In many cases,
+`process_item()` will be I/O  bound so using a higher number of threads than cores can still have a positive impact.
+
 ## Migrating From Version 1
 
 In Version 2 we changed the way canonical IDs are stored. This means that you will need to migrate your existing data to the new format, if you are planning to resume / to delta imports with data that was imported under Version 1.
