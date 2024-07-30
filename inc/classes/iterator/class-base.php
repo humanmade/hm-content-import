@@ -77,7 +77,6 @@ abstract class Base implements Base_Interface {
 	 * @param $items
 	 */
 	public function iterate_items( $items ) {
-
 		foreach ( $items as $item ) {
 
 			$r = $this->iterate_item( $item );
@@ -243,7 +242,7 @@ abstract class Base implements Base_Interface {
 	/**
 	 * Get arguments of iterator when being used for import
 	 *
-	 * @return array
+	 * @return array<string, array{ default: mixed, type: string, description: string }>
 	 */
 	public static function get_importer_args() {
 
