@@ -2,7 +2,7 @@
 
 HMCI provides a CLI command for running imports. Each importer is a sub-command of the `hmci import` command.
 
-Importers are typically re-runable, meaning that items already previoulsy imported will be updated with the new data. Therefore it's usually safe to re-run an import once the importer may have been updated to import additional data.
+Importers are typically re-runable, meaning that items already previously imported will be updated with the new data. Therefore it's usually safe to re-run an import once the importer may have been updated to import additional data.
 
 ## Resuming / splitting imports
 

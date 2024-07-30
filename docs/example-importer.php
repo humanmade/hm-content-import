@@ -6,7 +6,7 @@
  *
  * Activate the migrator plugins: `wp plugin activate hm-content-import my-content-import`
  *
- * #### Run the  import
+ * #### Run the import
  *
  * To run the import: `time wp hmci import my-importer --verbose --url="mysite.local" --export_path="my-import"`
  *

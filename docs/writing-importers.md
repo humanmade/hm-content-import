@@ -8,7 +8,7 @@ The importer class then must implement the `process_item( mixed $item ) : bool` 
 
 ## Iterators
 
-As mentioned, all importers should extend the `HMCI\Iterator\Base` class. That is because importers _are_ `Iterators`. It's unlikley you'll extend the `HMCI\Iterator\Base` class directly though, as HMCI providers a number of base iterators that you can extend to create your own iterators. For example, if you are importering data from a collection of CSV file, you can extend the `HMCI\Iterator\Files\CSV` class to create your own iterator. This way you will only need to implement the `process_item( mixed $item ) : bool` method, and HMCI will handle the rest.
+As mentioned, all importers should extend the `HMCI\Iterator\Base` class. That is because importers _are_ `Iterators`. It's unlikely you'll extend the `HMCI\Iterator\Base` class directly though, as HMCI providers a number of base iterators that you can extend to create your own iterators. For example, if you are importing data from a collection of CSV files, you can extend the `HMCI\Iterator\Files\CSV` class to create your own iterator. This way you will only need to implement the `process_item( mixed $item ) : bool` method, and HMCI will handle the rest.
 
 See all the iterators in the [inc/classes/iterator](./inc/classes/iterator) folder.
 
