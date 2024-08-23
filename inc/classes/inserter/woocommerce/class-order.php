@@ -63,11 +63,32 @@ class Order extends Base {
 	}
 
 	static function set_canonical_id( $order_id, $canonical_id ) {
+		global $wpdb;
+
 		if ( $order_id === static::get_id_from_canonical_id( $canonical_id, 'order_id' ) ) {
 			return;
 		}
 
-		parent::set_canonical_id( $order_id, $canonical_id );
+		/*
+		 * Because the order meta table doesn't follow the core structure for
+		 * meta tables (the meta id column is called "id" rather than
+		 * "meta_id"), calling `update_metadata()` throws a PHP warning. This code
+		 * is copied from the internals of update_metadata, but simplified to
+		 * return faster and not throw warnings.
+		 */
+		$meta_key = static::get_canonical_id_key( $canonical_id );
+
+		$meta_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->ordermeta} WHERE order_id = %d AND meta_key = %s",
+				$order_id,
+				$meta_key,
+			)
+		);
+
+		if ( empty( $meta_ids ) ) {
+			add_metadata( 'order', $order_id, $meta_key, $canonical_id );
+		}
 	}
 
 	static function get_core_object_type() {
