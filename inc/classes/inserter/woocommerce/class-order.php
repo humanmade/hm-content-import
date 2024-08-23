@@ -52,6 +52,12 @@ class Order extends Base {
 		$order->set_created_via( 'import' );
 		$order->save();
 
+		// Assign order meta to order, if any.
+		foreach ( $order_meta as $meta_key => $meta_value ) {
+			$order->update_meta_data( $meta_key, $meta_value );
+		}
+		$order->save_meta_data();
+
 		static::set_canonical_id( $order_id, $canonical_id );
 		return $order_id;
 	}
