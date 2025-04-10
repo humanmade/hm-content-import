@@ -48,7 +48,7 @@ class HMCI extends \WP_CLI_Command {
 					'type' => $data['type'] == 'bool' ? 'flag' : 'assoc',
 					'name' => $arg,
 					'description' => $data['description'],
-					'optional' => ! empty( $data['default'] ),
+					'optional' => isset( $data['default'] ),
 					'default' => $data['default'],
 				];
 			}
