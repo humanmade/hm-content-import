@@ -117,7 +117,6 @@ abstract class Base extends \HMCI\Iterator\Base {
 
 		return [
 			'export_path' => [
-				'required'    => true,
 				'type'        => 'string',
 				'description' => __( 'Export path, either absolute path or relative ABSPATH', 'hmci' ),
 			],
