@@ -10,7 +10,7 @@ The importer class then must implement the `process_item( mixed $item ) : bool` 
 
 As mentioned, all importers should extend the `HMCI\Iterator\Base` class. That is because importers _are_ `Iterators`. It's unlikely you'll extend the `HMCI\Iterator\Base` class directly though, as HMCI providers a number of base iterators that you can extend to create your own iterators. For example, if you are importing data from a collection of CSV files, you can extend the `HMCI\Iterator\Files\CSV` class to create your own iterator. This way you will only need to implement the `process_item( mixed $item ) : bool` method, and HMCI will handle the rest.
 
-See all the iterators in the [inc/classes/iterator](./inc/classes/iterator) folder.
+See all the iterators in the [inc/classes/iterator](../inc/classes/iterator) folder.
 
 ## Inserters
 
@@ -18,7 +18,7 @@ Inserters in HMCI are classes that extend the `HMCI\Inserter\Base` class. HMCI b
 
 The Inserter class will automatically handle the insert/update logic based off a "canonical id" field (see below).
 
-See all the importers in the [inc/classes/inserter](./inc/classes/inserter) and the WordPress specific inserters in the [inc/classes/inserter/wp](./inc/classes/inserter/wp) folder.
+See all the importers in the [inc/classes/inserter](../inc/classes/inserter) and the WordPress specific inserters in the [inc/classes/inserter/wp](../inc/classes/inserter/wp) folder.
 
 ## Canonical IDs
 
@@ -30,4 +30,4 @@ Note: canonical IDs should be unique accross importers if those importers are im
 
 Check the examples below to see how to write your own importers:
 
-- [Basic Importer](./docs/example-importer.php)
+- [Basic Importer](./example-importer.php)
