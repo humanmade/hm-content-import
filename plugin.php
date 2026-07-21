@@ -2,7 +2,7 @@
 /*
 Plugin Name: HM Content Import
 Description: Developer Framework for Importing external data into WordPress during site migration
-Version: 1.0
+Version: 1.0.1
 Author: Human Made
 Author URI: http://hmn.md
 License: GPL3
