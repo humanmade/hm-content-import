@@ -121,7 +121,7 @@ abstract class Base implements Base_Interface {
 			return;
 		}
 
-		if ( $this->args['debugger'] ) {
+		if ( ! empty( $this->args['debugger'] ) && is_callable( $this->args['debugger'] ) ) {
 			call_user_func( $this->args['debugger'], $output );
 		}
 	}
