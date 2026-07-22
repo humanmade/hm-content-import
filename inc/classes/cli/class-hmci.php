@@ -45,7 +45,7 @@ class HMCI extends \WP_CLI_Command {
 			$synopsis = [];
 			foreach ( $importer_args as $arg => $data ) {
 				$synopsis[] = [
-					'type' => $data['type'] == 'bool' ? 'flag' : 'assoc',
+					'type' => in_array( $data['type'], array( 'bool', 'boolean' ), true ) ? 'flag' : 'assoc',
 					'name' => $arg,
 					'description' => $data['description'],
 					'optional' => isset( $data['default'] ),
