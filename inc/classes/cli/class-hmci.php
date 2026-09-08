@@ -87,6 +87,23 @@ class HMCI extends \WP_CLI_Command {
 		// translators: %1$s refers to an importer type, i.e. 'Posts Importer`. %2$d Refers to number of items being imported
 		/** @var \cli\progress\Bar $progress */
 		$progress = \WP_CLI\Utils\make_progress_bar( sprintf( __( 'Importing data for %1$s (%2$d items)', 'hmci' ), $import_type, $count ), $count );
+
+		/**
+		 * Allow customization of the progress bar used during an import.
+		 *
+		 * @param object                        $progress    Progress bar object exposing display(), tick(), and finish() methods.
+		 * @param string                        $import_type Importer type.
+		 * @param int                           $count       Number of items to import.
+		 * @param \HMCI\Iterator\Base_Interface $importer    Importer instance.
+		 */
+		$progress = apply_filters(
+			'hmci_import_progress_bar',
+			$progress,
+			$import_type,
+			$count,
+			$importer
+		);
+
 		// Expose the progressbar so importers can use for incremental updates
 		self::$progressbar = $progress;
 
