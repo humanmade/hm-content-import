@@ -14,7 +14,7 @@ class Term extends Base {
 	 *
 	 * @param $term
 	 * @param $taxonomy
-	 * @param bool $canonical_id
+	 * @param mixed $canonical_id
 	 * @param array $args
 	 * @param array $term_meta
 	 * @return array|bool|int|null|string|\WP_Error|\WP_Term
