@@ -13,7 +13,7 @@ class Comment extends Base {
 	 * Add comment object to the database
 	 *
 	 * @param array $comment_data
-	 * @param bool $canonical_id
+	 * @param mixed $canonical_id
 	 * @param array $comment_meta
 	 * @return int|\WP_Error
 	 */

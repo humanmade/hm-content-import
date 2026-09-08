@@ -13,7 +13,7 @@ class Post extends Base {
 	 * Add post object to the database
 	 *
 	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
-	 * @param bool  $canonical_id Use an existing canonical ID.
+	 * @param mixed $canonical_id Use an existing canonical ID.
 	 * @param array $post_meta    Metadata to assign to the post.
 	 * @param array $options      Additional data about the post.
 	 * @return int|\WP_Error

@@ -13,7 +13,7 @@ class Guest_Author extends Post {
 	 * Add guest author (post) object into the database
 	 *
 	 * @param array $user_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
-	 * @param bool  $canonical_id Use an existing canonical ID.
+	 * @param mixed $canonical_id Use an existing canonical ID.
 	 * @param array $author_meta  Metadata to assign to the post.
 	 * @param array $options      Additional data about the post.
 	 * @return int|string|\WP_Error

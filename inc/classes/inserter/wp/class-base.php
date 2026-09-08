@@ -31,7 +31,7 @@ abstract class Base extends \HMCI\Inserter\Base implements Base_Interface {
 	/**
 	 * Check if post exists with provided canonical ID
 	 *
-	 * @param mixed  $canonical_id
+	 * @param mixed $canonical_id
 	 * @return bool
 	 */
 	static function exists( $canonical_id ) {

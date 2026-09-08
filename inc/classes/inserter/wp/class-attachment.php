@@ -15,7 +15,7 @@ class Attachment extends Post {
 	 *
 	 *
 	 * @param array $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
-	 * @param bool  $canonical_id Use an existing canonical ID.
+	 * @param mixed $canonical_id Use an existing canonical ID.
 	 * @param array $post_meta    Metadata to assign to the post.
 	 * @param array $options      Additional data about the post.
 	 *   Args
@@ -85,7 +85,7 @@ class Attachment extends Post {
 	 *
 	 * @param string $path         The local dir path or remote url of the file.
 	 * @param array  $post_data    Post data formatted as it will be saved to the posts table. Should match WP_Post data.
-	 * @param bool   $canonical_id Use an existing canonical ID.
+	 * @param mixed   $canonical_id Use an existing canonical ID.
 	 * @param array  $post_meta    Metadata to assign to the post.
 	 * @param array  $options      Additional data about the post.
 	 *   Args

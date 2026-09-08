@@ -13,7 +13,7 @@ class User extends Base {
 	 * Insert a user object into the database
 	 *
 	 * @param $user_data
-	 * @param bool $canonical_id
+	 * @param mixed $canonical_id
 	 * @param array $user_meta
 	 * @return int|\WP_Error
 	 */
